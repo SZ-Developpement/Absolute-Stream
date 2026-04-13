@@ -259,4 +259,4 @@ absolute-stream/
 
 ## Licence
 
-MIT — voir [LICENSE](./LICENSE)
+# MIT — voir [LICENSE](./LICENSE)
