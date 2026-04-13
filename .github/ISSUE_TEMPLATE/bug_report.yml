@@ -1,0 +1,50 @@
+name: Bug Report
+description: Signaler un bug ou un comportement inattendu
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du bug
+      placeholder: "Ex : Le swipe droit ne déclenche pas de Match même avec des choix identiques..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Etapes pour reproduire
+      value: |
+        1. Aller sur '...'
+        2. Faire '...'
+        3. Voir l'erreur
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Logs d'erreur
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Zone concernée
+      options:
+        - Frontend / UI
+        - Systeme de Match
+        - Bibliotheque
+        - Authentification (Better Auth)
+        - TMDB Integration
+        - Base de données (NeonDB)
+        - API Routes
+        - Autre
+    validations:
+      required: true

@@ -1,0 +1,40 @@
+name: CI — Absolute Stream
+
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: [dev]
+
+jobs:
+  ci:
+    name: Lint, Type Check & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://fake:fake@fake/fake' }}
+          BETTER_AUTH_SECRET: ci_test_secret
+          BETTER_AUTH_URL: http://localhost:3000
+          TMDB_API_KEY: fake_key_for_ci
+          TMDB_BASE_URL: https://api.themoviedb.org/3
