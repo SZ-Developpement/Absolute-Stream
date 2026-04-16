@@ -99,7 +99,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-gray-600 mt-4">
           <Link href="/" className="text-blue-500 hover:underline">
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
         </p>
       </div>

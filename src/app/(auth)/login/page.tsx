@@ -83,13 +83,13 @@ export default function LoginPage() {
         <p className="text-center mt-4">
           Pas de compte?
           <Link href="/register" className="ml-2 text-blue-500 hover:underline">
-            S'inscrire
+            S&apos;inscrire
           </Link>
         </p>
 
         <p className="text-center text-sm text-gray-600 mt-4">
           <Link href="/" className="text-blue-500 hover:underline">
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
         </p>
       </div>
