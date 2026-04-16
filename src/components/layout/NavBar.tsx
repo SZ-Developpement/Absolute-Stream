@@ -6,10 +6,17 @@ import { LucideIcon, Search, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
-  const connected = false;
+  const { user, loading } = useAuth();
 
   return (
     // Conteneur principal de la barre de navigation avec styles pour le positionnement et l'apparence
@@ -40,14 +47,26 @@ function NavBar() {
 
         {/* Boutons de recherche et d'authentification */}
         <div className="flex flex-row items-center gap-3">
-          <InputSearch ClassName="hidden 2xl:flex" />
-          {connected ? (
-            <ButtonConnected />
+          <InputSearch className="hidden 2xl:flex" />
+
+          {loading ? (
+            <div className="w-8 h-8 rounded-full bg-foreground/10 animate-pulse hidden 2xl:block" />
           ) : (
-            <div className="hidden 2xl:flex flex-row items-center gap-1.5">
-              <ButtonUnConnected />
-            </div>
+            <>
+              {user ? (
+                <ButtonConnected
+                  id={user.id}
+                  name={user.name || "User"}
+                  image={user.image}
+                />
+              ) : (
+                <div className="hidden 2xl:flex flex-row items-center gap-1.5">
+                  <ButtonUnConnected />
+                </div>
+              )}
+            </>
           )}
+
           <ToggleButton isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
         </div>
       </div>
@@ -56,7 +75,7 @@ function NavBar() {
       {isOpen && (
         <div className="2xl:hidden flex flex-col gap-1 w-full px-4 pb-4 pt-2 border-t border-foreground/5">
           {/* Recherche mobile */}
-          <InputSearch ClassName="2xl:hidden py-2 px-3 gap-1 w-full" />
+          <InputSearch className="2xl:hidden py-2 px-3 gap-1 w-full" />
 
           {/* Nav items */}
           <nav className="flex flex-col gap-0.5">
@@ -70,14 +89,16 @@ function NavBar() {
             ))}
           </nav>
 
-          {/* Séparateur */}
-          <div className="h-px bg-foreground/5 my-2" />
+          {!user && !loading && (
+            <>
+              {/* Séparateur */}
+              <div className="h-px bg-foreground/5 my-2" />
 
-          {/* Boutons auth — toujours visibles en mobile */}
-          {!connected && (
-            <div className="flex flex-row gap-2 w-full">
-              <ButtonUnConnected />
-            </div>
+              {/* Boutons auth — toujours visibles en mobile */}
+              <div className="flex flex-row gap-2 w-full">
+                <ButtonUnConnected />
+              </div>
+            </>
           )}
         </div>
       )}
@@ -119,14 +140,14 @@ function ButtonUnConnected() {
       {/* Lien vers la page de connexion */}
       <Link
         href="/login"
-        className="flex-1 2xl:flex-none text-center text-sm bg-foreground text-background hover:bg-foreground/80 py-1.5 px-4 rounded-lg transition-colors duration-200"
+        className="flex-1 2xl:flex-none whitespace-nowrap text-center text-sm bg-foreground text-background hover:bg-foreground/80 py-1.5 px-4 rounded-lg transition-colors duration-200"
       >
         Se connecter
       </Link>
       {/* Lien vers la page d'inscription */}
       <Link
         href="/register"
-        className="flex-1 2xl:flex-none text-center text-sm bg-foreground/8 text-foreground hover:bg-foreground/15 py-1.5 px-4 rounded-lg border border-foreground/10 transition-colors duration-200"
+        className="flex-1 2xl:flex-none whitespace-nowrap text-center text-sm bg-foreground/8 text-foreground hover:bg-foreground/15 py-1.5 px-4 rounded-lg border border-foreground/10 transition-colors duration-200"
       >
         S&apos;inscrire
       </Link>
@@ -134,28 +155,58 @@ function ButtonUnConnected() {
   );
 }
 
-function ButtonConnected() {
+function ButtonConnected({
+  id,
+  name,
+  image,
+}: {
+  id: string;
+  name: string;
+  image: string | null | undefined;
+}) {
+  const { signOut } = useAuth();
   return (
     // Lien vers le profil utilisateur avec avatar
-    <Link
-      href="/profile"
-      className="w-8 aspect-square relative rounded-full overflow-hidden"
-    >
-      <Image
-        src="https://avatars.githubusercontent.com/u/150966588?s=400&u=54dbed649a6605623274caf9033b89060139c8c2&v=4"
-        alt="Profil"
-        fill
-        className="object-cover absolute rounded-full"
-      />
-    </Link>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <div className="w-8 aspect-square relative rounded-full overflow-hidden cursor-pointer">
+          <p className="text-sm font-bold text-foreground bg-pink-400 rounded-full w-full h-full flex items-center justify-center">
+            {name[0].toUpperCase()}
+          </p>
+          {image && (
+            <Image
+              src={image}
+              alt={`Profil ${name}`}
+              fill
+              className="object-cover absolute rounded-full"
+            />
+          )}
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-40">
+        <DropdownMenuItem>
+          <Link className="w-full" href={`/profile/${id}`}>
+            Profil
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Link className="w-full" href="/support">
+            Support
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="bg-[#E50914]/10 text-[#E50914] focus:bg-[#E50914]/20 focus:text-[#E50914] transition-colors duration-200 ">
+          <button onClick={() => signOut()}>Déconnexion</button>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
-function InputSearch({ ClassName }: { ClassName?: string }) {
+function InputSearch({ className }: { className?: string }) {
   return (
     // Champ de recherche avec icône et styles adaptés pour les différentes tailles d'écran
     <div
-      className={`flex flex-row items-center bg-foreground/5 border border-foreground/10 rounded-lg py-1.5 px-3 w-70 focus-within:border-foreground/30 transition-colors duration-300 ${ClassName}`}
+      className={`flex flex-row items-center bg-foreground/5 border border-foreground/10 rounded-lg py-1.5 px-3 w-70 focus-within:border-foreground/30 transition-colors duration-300 ${className}`}
     >
       <Search size={14} className="text-foreground/50" />
       <input
