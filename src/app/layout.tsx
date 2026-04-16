@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
+import { NavBar } from "@/components/layout/NavBar";
+import { PageBackground } from "@/components/layout/PageBackground";
 
 export const metadata: Metadata = {
   title: "Absolute Stream",
@@ -15,7 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${GeistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <NavBar />
+        <PageBackground />
+        {children}
+      </body>
     </html>
   );
 }
