@@ -1,0 +1,194 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// --- ENUMS ---
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum MediaStatus {
+  WATCHED    // "Vu"
+  TO_WATCH   // "À voir"
+  WATCHING   // "En cours"
+}
+
+enum MediaType {
+  MOVIE
+  TV_SHOW
+  ANIME
+}
+
+// --- AUTHENTIFICATION (Better Auth) ---
+
+model User {
+  id            String    @id @default(cuid())
+  name String?
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          Role      @default(USER) 
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Réseau social
+  following     Follows[] @relation("follower")
+  followers     Follows[] @relation("following")
+
+  // Contenu & Interactions
+  library       Library[]
+  reviews       Review[]
+  reports       Report[]  @relation("reporter")
+  swipes Swipe[]
+
+  // Auth & Sessions
+  sessions      Session[]
+  accounts      Account[]
+
+  // Système de Match
+  createdMatches MatchSession[] @relation("creator")
+  joinedMatches  MatchSession[] @relation("partner")
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id String @id @default(cuid()) 
+  accountId             String?
+  providerId            String?
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type                  String?
+  provider              String?
+  providerAccountId     String?
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  expiresAt             Int?   
+  sessionState          String?
+  scope                 String?
+  password              String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id String @id @default(cuid()) 
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// --- SYSTÈME SOCIAL (Followers/Following) ---
+
+model Follows {
+  followerId  String
+  followingId String
+  follower    User   @relation("follower", fields: [followerId], references: [id])
+  following   User   @relation("following", fields: [followingId], references: [id])
+
+  @@id([followerId, followingId])
+  @@map("follows")
+}
+
+// --- GESTION DES MÉDIAS (Liaison TMDB) ---
+
+model Library {
+  id        String      @id @default(cuid())
+  userId    String
+  tmdbId    Int         
+  type      MediaType   
+  status    MediaStatus 
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, tmdbId, type])
+  @@map("library")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  tmdbId    Int
+  rating    Int      // La jauge de flammes (ex: 1 à 5)
+  content   String   @db.Text
+  isSpoiler Boolean  @default(false) 
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports   Report[]
+  createdAt DateTime @default(now())
+
+  @@map("review")
+}
+
+// --- SYSTÈME DE MATCH (Swipe Duo) ---
+
+model MatchSession {
+  id          String   @id @default(cuid())
+  creatorId   String
+  partnerId   String?  // Ami invité
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  creator     User     @relation("creator", fields: [creatorId], references: [id])
+  partner     User?    @relation("partner", fields: [partnerId], references: [id])
+  swipes      Swipe[]
+
+  @@map("match_session")
+}
+
+model Swipe {
+  id        String       @id @default(cuid())
+  sessionId String
+  userId    String
+  tmdbId    Int
+  isLike    Boolean
+  session   MatchSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade) // manquant
+  
+  @@map("swipe")
+}
+
+// --- MODÉRATION ---
+
+model Report {
+  id          String   @id @default(cuid())
+  reporterId  String
+  reviewId    String
+  reason      String
+  isProcessed Boolean  @default(false)
+  reporter    User     @relation("reporter", fields: [reporterId], references: [id])
+  review      Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@map("report")
+}
