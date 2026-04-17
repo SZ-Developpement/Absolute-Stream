@@ -8,7 +8,7 @@ interface ImageData {
 
 export const pageDesign: ImageData[] = [
   {
-    name: "films",
+    name: "movies",
     src: "https://image.tmdb.org/t/p/original/rshlQ6LfPRSWFhpGL4s5ZkIPR51.jpg",
     exact: true,
   },
@@ -18,7 +18,7 @@ export const pageDesign: ImageData[] = [
     exact: true,
   },
   {
-    name: "anime",
+    name: "animes",
     src: "https://image.tmdb.org/t/p/original/fFI7CYmqbW28eD7QbSxtUk9dABO.jpg",
     exact: true,
   },
