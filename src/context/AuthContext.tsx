@@ -6,7 +6,7 @@ import { createAuthClient } from "better-auth/client";
 const client = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000",
   session: {
-    cookieCache: { enabled: true, maxAge: 60 * 5 }, // ✅ seul vrai changement
+    cookieCache: { enabled: true, maxAge: 60 * 5 }, // seul vrai changement
   },
 });
 
@@ -26,24 +26,28 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialise depuis localStorage directement — pas de flash
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window === "undefined") return null;
-    const cached = localStorage.getItem("auth_user");
-    return cached ? JSON.parse(cached) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Charge depuis localStorage en premier, instantané
+    const cached = localStorage.getItem("auth_user");
+    if (cached) {
+      setUser(JSON.parse(cached));
+      setLoading(false); // ← plus de flash car on a déjà l'user
+    }
+
+    // Puis valide avec le serveur en arrière-plan
     async function init() {
       try {
         const res = await client.getSession();
         if (res?.data?.user) {
           const u = res.data.user as User;
           setUser(u);
-          localStorage.setItem("auth_user", JSON.stringify(u)); // sauvegarde
+          localStorage.setItem("auth_user", JSON.stringify(u));
         } else {
           setUser(null);
-          localStorage.removeItem("auth_user"); // session expirée
+          localStorage.removeItem("auth_user");
         }
       } catch (e) {
         console.error("Session init error", e);
