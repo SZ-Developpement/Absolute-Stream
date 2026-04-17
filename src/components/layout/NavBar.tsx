@@ -49,22 +49,18 @@ function NavBar() {
         <div className="flex flex-row items-center gap-3">
           <InputSearch className="hidden 2xl:flex" />
 
-          {loading ? (
+          {user ? (
+            <ButtonConnected
+              id={user.id}
+              name={user.name || "User"}
+              image={user.image}
+            />
+          ) : loading ? (
             <div className="w-8 h-8 rounded-full bg-foreground/10 animate-pulse hidden 2xl:block" />
           ) : (
-            <>
-              {user ? (
-                <ButtonConnected
-                  id={user.id}
-                  name={user.name || "User"}
-                  image={user.image}
-                />
-              ) : (
-                <div className="hidden 2xl:flex flex-row items-center gap-1.5">
-                  <ButtonUnConnected />
-                </div>
-              )}
-            </>
+            <div className="hidden 2xl:flex flex-row items-center gap-1.5">
+              <ButtonUnConnected />
+            </div>
           )}
 
           <ToggleButton isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
@@ -89,12 +85,9 @@ function NavBar() {
             ))}
           </nav>
 
-          {!user && !loading && (
+          {!user && (
             <>
-              {/* Séparateur */}
               <div className="h-px bg-foreground/5 my-2" />
-
-              {/* Boutons auth — toujours visibles en mobile */}
               <div className="flex flex-row gap-2 w-full">
                 <ButtonUnConnected />
               </div>
@@ -165,11 +158,14 @@ function ButtonConnected({
   image: string | null | undefined;
 }) {
   const { signOut } = useAuth();
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   return (
     // Lien vers le profil utilisateur avec avatar
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="w-8 aspect-square relative rounded-full overflow-hidden cursor-pointer">
+          {/* Fallback toujours présent en dessous */}
           <p className="text-sm font-bold text-foreground bg-pink-400 rounded-full w-full h-full flex items-center justify-center">
             {name[0].toUpperCase()}
           </p>
@@ -178,7 +174,10 @@ function ButtonConnected({
               src={image}
               alt={`Profil ${name}`}
               fill
-              className="object-cover absolute rounded-full"
+              className={`object-cover absolute rounded-full transition-opacity duration-300 ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
+              onLoad={() => setImageLoaded(true)}
             />
           )}
         </div>

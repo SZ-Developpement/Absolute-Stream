@@ -5,15 +5,16 @@ import { createAuthClient } from "better-auth/client";
 
 const client = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000",
+  session: {
+    cookieCache: { enabled: true, maxAge: 60 * 5 }, // ✅ seul vrai changement
+  },
 });
 
-// Extraction propre des types
 type User = typeof client.$Infer.Session.user;
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  // On remplace "any" par "unknown" pour satisfaire ESLint
   signIn: (email: string, password: string) => Promise<unknown>;
   signUp: (email: string, password: string, name: string) => Promise<unknown>;
   signOut: () => Promise<void>;
@@ -24,7 +25,12 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  // Initialise depuis localStorage directement — pas de flash
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window === "undefined") return null;
+    const cached = localStorage.getItem("auth_user");
+    return cached ? JSON.parse(cached) : null;
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const res = await client.getSession();
         if (res?.data?.user) {
-          setUser(res.data.user as User);
+          const u = res.data.user as User;
+          setUser(u);
+          localStorage.setItem("auth_user", JSON.stringify(u)); // sauvegarde
+        } else {
+          setUser(null);
+          localStorage.removeItem("auth_user"); // session expirée
         }
       } catch (e) {
         console.error("Session init error", e);
@@ -43,10 +54,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     init();
   }, []);
 
+  const signOut = async () => {
+    try {
+      await client.signOut();
+      setUser(null);
+      localStorage.removeItem("auth_user"); // nettoyage
+    } catch (e) {
+      console.error("Sign out error", e);
+    }
+  };
+
   const signIn = async (email: string, password: string): Promise<unknown> => {
     const res = await client.signIn.email({ email, password });
     if (res?.data?.user) {
-      setUser(res.data.user as User);
+      const u = res.data.user as User;
+      setUser(u);
+      localStorage.setItem("auth_user", JSON.stringify(u)); // sauvegarde
     }
     return res;
   };
@@ -58,18 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   ): Promise<unknown> => {
     const res = await client.signUp.email({ email, password, name });
     if (res?.data?.user) {
-      setUser(res.data.user as User);
+      const u = res.data.user as User;
+      setUser(u);
+      localStorage.setItem("auth_user", JSON.stringify(u)); // sauvegarde
     }
     return res;
-  };
-
-  const signOut = async () => {
-    try {
-      await client.signOut();
-      setUser(null);
-    } catch (e) {
-      console.error("Sign out error", e);
-    }
   };
 
   return (
