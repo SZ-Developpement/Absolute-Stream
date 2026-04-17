@@ -15,6 +15,7 @@ type User = typeof client.$Infer.Session.user;
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  error: string | null;
   signIn: (email: string, password: string) => Promise<unknown>;
   signUp: (email: string, password: string, name: string) => Promise<unknown>;
   signOut: () => Promise<void>;
@@ -28,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialise depuis localStorage directement — pas de flash
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Charge depuis localStorage en premier, instantané
@@ -73,7 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (res?.data?.user) {
       const u = res.data.user as User;
       setUser(u);
-      localStorage.setItem("auth_user", JSON.stringify(u)); // sauvegarde
+      localStorage.setItem("auth_user", JSON.stringify(u));
+    } else {
+      setError(res?.error?.message ?? "Erreur de connexion");
     }
     return res;
   };
@@ -88,12 +92,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const u = res.data.user as User;
       setUser(u);
       localStorage.setItem("auth_user", JSON.stringify(u)); // sauvegarde
+    } else {
+      setError(res?.error?.message ?? "Erreur d'inscription");
     }
+
     return res;
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{ user, loading, error, signIn, signUp, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
