@@ -49,6 +49,7 @@ export default function MatchPage() {
                 min={1970}
                 max={2026}
                 step={1}
+                color="var(--page-main)"
               />
             </div>
 
@@ -75,7 +76,7 @@ export default function MatchPage() {
             </div>
           </form>
 
-          <button className="bg-[#E50914] text-white flex flex-row gap-2 items-center justify-center font-semibold py-2 px-4 rounded-sm cursor-pointer hover:bg-[#E50914]/80 transition-colors duration-300">
+          <button className="bg-(--page-main) text-white flex flex-row gap-2 items-center justify-center font-semibold py-2 px-4 rounded-sm cursor-pointer hover:bg-(--page-main)/60 transition-colors duration-300">
             <Play size={16} />
             Lancer le Match
           </button>
@@ -91,7 +92,7 @@ function CardChoice({ value, name }: { value: string; name: string }) {
   return (
     <RadioCardsItem
       value={value}
-      className="data-[state=checked]:bg-[#E50914]/50"
+      className="data-[state=checked]:bg-(--page-main)/70"
     >
       <span>{name}</span>
     </RadioCardsItem>
@@ -101,7 +102,7 @@ function CardChoice({ value, name }: { value: string; name: string }) {
 function UserCard({ image, username }: { image?: string; username?: string }) {
   return (
     <div className="flex flex-col items-center gap-3">
-      <div className="w-45 h-45 border-4 border-[#E50914] rounded-full relative">
+      <div className="w-45 h-45 border-4 border-(--page-main) rounded-full relative">
         <Image
           src={image || "/No-Image/UserIcon.jpg"}
           alt="User"
