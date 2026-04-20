@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -11,11 +11,18 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // --- CORRECTION : Utilisation de useEffect pour la redirection ---
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
       await signUp(email, password, name);
@@ -24,10 +31,11 @@ export default function RegisterPage() {
     } catch (err) {
       console.error(err);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
+  // Affichage du chargement initial de la session
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -36,9 +44,8 @@ export default function RegisterPage() {
     );
   }
 
+  // Si l'utilisateur est présent, on ne rend rien (le useEffect s'occupe du push)
   if (user) {
-    // Si déjà connecté, rediriger vers l'accueil
-    router.push("/");
     return null;
   }
 
@@ -83,10 +90,10 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
           >
-            {isLoading ? "Inscription en cours..." : "S'inscrire"}
+            {isSubmitting ? "Inscription en cours..." : "S'inscrire"}
           </button>
         </form>
 
