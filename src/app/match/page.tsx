@@ -13,7 +13,15 @@ export default function MatchPage() {
       </div>
 
       <div className="flex flex-col gap-2 absolute top-1/2 -translate-y-1/2">
-        <button className="flex items-center justify-center py-2.5 px-9 w-[320px] font-bold text-foreground rounded-lg bg-[#FF0000]/30 hover:bg-[#FF0000]/50 transition-colors duration-300 cursor-pointer">
+        <button
+          className="flex items-center justify-center py-2.5 px-9 w-[320px] font-bold text-foreground rounded-lg bg-(--hover-color) hover:bg-(--page-main) transition-colors duration-300 cursor-pointer"
+          style={
+            {
+              "--hover-color":
+                "color-mix(in srgb, var(--page-main), transparent 40%)",
+            } as React.CSSProperties
+          }
+        >
           Nouveau Match
         </button>
         <button className="flex items-center justify-center py-2.5 px-9 w-[320px] font-bold text-foreground rounded-lg bg-[#474747]/30 hover:bg-[#474747]/50 transition-colors duration-300 cursor-pointer">

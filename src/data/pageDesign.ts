@@ -24,7 +24,7 @@ export const pageDesign: ImageData[] = [
   },
   {
     name: "match",
-    src: "https://image.tmdb.org/t/p/original/pdfwmHRUrreESvcWXUtJs9KjBcT.jpg",
+    src: "https://image.tmdb.org/t/p/original/nlPCdZlHtRNcF6C9hzUH4ebmV1w.jpg",
     exact: false,
   },
 ];
