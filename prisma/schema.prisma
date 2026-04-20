@@ -7,7 +7,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// --- ENUMS ---
+// =============================================================================
+// ENUMS
+// =============================================================================
 
 enum Role {
   USER
@@ -16,9 +18,9 @@ enum Role {
 }
 
 enum MediaStatus {
-  WATCHED    // "Vu"
-  TO_WATCH   // "À voir"
-  WATCHING   // "En cours"
+  WATCHED  // L'utilisateur a vu ce média
+  TO_WATCH // Dans sa liste "à voir"
+  WATCHING // En cours de visionnage (surtout utile pour les séries)
 }
 
 enum MediaType {
@@ -27,35 +29,66 @@ enum MediaType {
   ANIME
 }
 
-// --- AUTHENTIFICATION (Better Auth) ---
+enum SwipeType {
+  LIKE
+  DISLIKE
+}
+
+enum MatchStatus {
+  WAITING
+  ACTIVE
+  FINISHED
+}
+
+// Visibilité d'une review (note + commentaire)
+// Il n'existe pas de "privé" dans cette app :
+//   - PUBLIC  → tout le monde peut voir la note/commentaire
+//   - FRIENDS → uniquement les utilisateurs qui te suivent
+// Cela permet par exemple d'aller sur le profil d'un ami et de voir
+// sa note sur un film pour se faire un avis avant de le regarder.
+enum Visibility {
+  PUBLIC
+  FRIENDS
+}
+
+// =============================================================================
+// AUTHENTIFICATION — géré par Better Auth
+// On ne touche pas à ces tables manuellement, Better Auth s'en occupe.
+// =============================================================================
 
 model User {
-  id            String    @id @default(cuid())
-  name String?
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  id            String   @id @default(cuid())
+  name          String?
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  role          Role      @default(USER) 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          Role     @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  // Réseau social
-  following     Follows[] @relation("follower")
-  followers     Follows[] @relation("following")
+  // --- Réseau social ---
+  // "following" = les gens que JE suis
+  // "followers" = les gens qui ME suivent
+  following Follows[] @relation("follower")
+  followers Follows[] @relation("following")
 
-  // Contenu & Interactions
-  library       Library[]
-  reviews       Review[]
-  reports       Report[]  @relation("reporter")
-  swipes Swipe[]
+  // --- Interactions avec les médias ---
+  library   Library[]   // Statut de visionnage (vu, en cours, à voir)
+  reviews   Review[]    // Notes et commentaires publics ou amis
+  favorites Favorite[]  // Médias mis en favoris
+  lists     UserList[]  // Listes personnalisées créées par l'user
 
-  // Auth & Sessions
-  sessions      Session[]
-  accounts      Account[]
+  // --- Modération ---
+  reports Report[] @relation("reporter")
 
-  // Système de Match
+  // --- Système de match ---
+  swipes         Swipe[]
   createdMatches MatchSession[] @relation("creator")
   joinedMatches  MatchSession[] @relation("partner")
+
+  // --- Auth & Sessions (Better Auth) ---
+  sessions Session[]
+  accounts Account[]
 
   @@map("user")
 }
@@ -75,7 +108,7 @@ model Session {
 }
 
 model Account {
-  id String @id @default(cuid()) 
+  id                    String    @id @default(cuid())
   accountId             String?
   providerId            String?
   userId                String
@@ -88,29 +121,35 @@ model Account {
   idToken               String?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  expiresAt             Int?   
+  expiresAt             Int?
   sessionState          String?
   scope                 String?
   password              String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@map("account")
 }
 
 model Verification {
-  id String @id @default(cuid()) 
+  id         String   @id @default(cuid())
   identifier String
   value      String
   expiresAt  DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@map("verification")
 }
 
-// --- SYSTÈME SOCIAL (Followers/Following) ---
+// =============================================================================
+// SYSTÈME SOCIAL — Followers / Following
+// =============================================================================
 
+// Table de liaison pour le système de suivi entre utilisateurs.
+// Un utilisateur A "suit" un utilisateur B = une ligne { followerId: A, followingId: B }
+// Exemple : pour savoir si je suis quelqu'un → WHERE followerId = monId AND followingId = sonId
+// Exemple : pour avoir mes abonnés           → WHERE followingId = monId
 model Follows {
   followerId  String
   followingId String
@@ -121,64 +160,191 @@ model Follows {
   @@map("follows")
 }
 
-// --- GESTION DES MÉDIAS (Liaison TMDB) ---
+// =============================================================================
+// GESTION DES MÉDIAS
+//
+// Stratégie TMDB :
+//   On ne stocke PAS les infos des films/séries (titre, affiche, synopsis…).
+//   On stocke uniquement le tmdbId + le type (MOVIE, TV_SHOW, ANIME).
+//   Toutes les métadonnées sont récupérées à la volée via l'API TMDB.
+//   Cela évite d'avoir une base de données de médias à maintenir.
+//
+// Pour la note affichée sur une fiche film, on a deux sources :
+//   1. La note TMDB     → récupérée via l'API TMDB, pas stockée ici
+//   2. La note de l'app → calculée dynamiquement : AVG(rating) sur Review
+// =============================================================================
 
+// Représente le "journal de visionnage" d'un utilisateur.
+// Chaque entrée = un média suivi par l'user avec son statut (vu, en cours, à voir).
+// Un utilisateur ne peut avoir qu'une seule entrée par média (@@unique).
+// Note : la note et le commentaire sont dans Review, pas ici.
 model Library {
   id        String      @id @default(cuid())
   userId    String
-  tmdbId    Int         
-  type      MediaType   
-  status    MediaStatus 
+  tmdbId    Int
+  type      MediaType
+  status    MediaStatus
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
   @@unique([userId, tmdbId, type])
   @@map("library")
 }
 
+// Représente la note et/ou le commentaire d'un utilisateur sur un média.
+//
+// Choix de design importants :
+//   - rating est optionnel  : l'user peut laisser un commentaire sans noter
+//   - content est optionnel : l'user peut noter sans écrire de commentaire
+//   - visibility contrôle qui peut voir cette review :
+//       PUBLIC  → visible par tous les visiteurs du profil
+//       FRIENDS → visible uniquement par les abonnés de l'user
+//   - Un user ne peut avoir qu'une seule review par média (@@unique)
+//
+// Calcul de la note communautaire de l'app :
+//   SELECT AVG(rating) FROM review WHERE tmdbId = ? AND type = ?
+//
+// Exemple d'usage : je vais sur le profil de mon ami, je vois qu'il a mis 5/10
+// à un film avec le commentaire "bof, trop long" → ça m'aide à décider.
 model Review {
-  id        String   @id @default(cuid())
-  userId    String
-  tmdbId    Int
-  rating    Int      // La jauge de flammes (ex: 1 à 5)
-  content   String   @db.Text
-  isSpoiler Boolean  @default(false) 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reports   Report[]
-  createdAt DateTime @default(now())
+  id         String     @id @default(cuid())
+  userId     String
+  tmdbId     Int
+  type       MediaType
+  rating     Int?       // Note de 1 à 10, optionnelle
+  content    String?    @db.Text // Commentaire, optionnel
+  isSpoiler  Boolean    @default(false)
+  visibility Visibility @default(PUBLIC)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports    Report[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
+  @@unique([userId, tmdbId, type])
   @@map("review")
 }
 
-// --- SYSTÈME DE MATCH (Swipe Duo) ---
+// Médias mis en favoris par un utilisateur.
+// Séparé de Library pour plus de flexibilité : on peut mettre en favori
+// un média sans forcément lui donner un statut de visionnage.
+// Exemple : je veux garder un film dans mes favoris même si je l'ai pas encore vu.
+model Favorite {
+  id        String    @id @default(cuid())
+  userId    String
+  tmdbId    Int
+  type      MediaType
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
 
+  @@unique([userId, tmdbId, type])
+  @@map("favorite")
+}
+
+// =============================================================================
+// LISTES PERSONNALISÉES
+//
+// Un utilisateur peut créer autant de listes que souhaité.
+// Exemples : "Films du dimanche", "Meilleurs thrillers", "À regarder avec Marie"…
+// =============================================================================
+
+// La liste elle-même, créée et nommée par l'utilisateur.
+// isPublic contrôle la visibilité (même logique que Visibility sur Review) :
+//   true  → visible par tout le monde sur le profil
+//   false → visible uniquement par les abonnés
+model UserList {
+  id          String     @id @default(cuid())
+  userId      String
+  name        String
+  description String?    @db.Text
+  isPublic    Boolean    @default(false)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       ListItem[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("user_list")
+}
+
+// Un média dans une liste. Table de liaison entre UserList et un tmdbId.
+// @@unique empêche d'ajouter le même média deux fois dans la même liste.
+model ListItem {
+  id      String    @id @default(cuid())
+  listId  String
+  tmdbId  Int
+  type    MediaType
+  list    UserList  @relation(fields: [listId], references: [id], onDelete: Cascade)
+  addedAt DateTime  @default(now())
+
+  @@unique([listId, tmdbId, type])
+  @@map("list_item")
+}
+
+// =============================================================================
+// SYSTÈME DE MATCH — "Swipe Duo"
+//
+// Permet à deux amis de swiper des films ensemble pour trouver un filmf
+// que tous les deux ont liké. Fonctionne comme Tinder mais pour choisir
+// quoi regarder à deux.
+// =============================================================================
+
+// Une session de match entre deux utilisateurs.
+// creatorId = celui qui a lancé la session
+// partnerId = l'ami invité (nullable car il peut rejoindre plus tard)
+// isActive  = false une fois qu'un match est trouvé ou que la session est terminée
 model MatchSession {
-  id          String   @id @default(cuid())
-  creatorId   String
-  partnerId   String?  // Ami invité
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  creatorId String
+  partnerId String?
+  status MatchStatus @default(WAITING)
+  createdAt DateTime @default(now())
 
-  creator     User     @relation("creator", fields: [creatorId], references: [id])
-  partner     User?    @relation("partner", fields: [partnerId], references: [id])
-  swipes      Swipe[]
+  creator User     @relation("creator", fields: [creatorId], references: [id])
+  partner User?    @relation("partner", fields: [partnerId], references: [id])
+  swipes  Swipe[]
+  matches MatchResult[]
 
   @@map("match_session")
 }
 
+
+// Résultat d'un match trouvé dans une session.
+model MatchResult {
+  id        String   @id @default(cuid())
+  sessionId String
+  tmdbId    Int
+  createdAt DateTime @default(now())
+
+  session   MatchSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, tmdbId])
+}
+
+
+// Un swipe effectué par un utilisateur dans une session de match.
+// type = LIKE    → l'user a liké
+// type = DISLIKE → l'user a passé
+// Le match est détecté quand les deux users ont isLike = true sur le même tmdbId.
 model Swipe {
   id        String       @id @default(cuid())
   sessionId String
   userId    String
   tmdbId    Int
-  isLike    Boolean
+  type SwipeType
   session   MatchSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade) // manquant
-  
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("swipe")
+  @@unique([sessionId, userId, tmdbId])
 }
 
-// --- MODÉRATION ---
+// =============================================================================
+// MODÉRATION
+//
+// Un utilisateur peut signaler une review qu'il juge inappropriée.
+// isProcessed = false → en attente de traitement par un modérateur
+// isProcessed = true  → traité (review supprimée ou signalement rejeté)
+// =============================================================================
 
 model Report {
   id          String   @id @default(cuid())
