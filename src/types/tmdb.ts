@@ -24,6 +24,13 @@ interface TopRatedMoviesResponse {
   total_results: number;
 }
 
+interface PopularMoviesResponse {
+  page: number;
+  results: Movie[];
+  total_pages: number;
+  total_results: number;
+}
+
 // Correspond à la structure de la réponse de TMDB pour les films en salle
 interface NowPlayingResponse {
   dates: {
@@ -62,6 +69,48 @@ interface TopRatedTVResponse {
   total_results: number;
 }
 
+interface PopularTVResponse {
+  page: number;
+  results: TVShow[];
+  total_pages: number;
+  total_results: number;
+}
+
+interface OnTheAirResponse {
+  page: number;
+  results: TVShow[];
+  total_pages: number;
+  total_results: number;
+}
+
+interface DiscoverTVResponse {
+  page: number;
+  results: TVShow[];
+  total_pages: number;
+  total_results: number;
+}
+
+interface DiscoverMoviesResponse {
+  page: number;
+  results: Movie[];
+  total_pages: number;
+  total_results: number;
+}
+
+// Correspond à la structure de la réponse de TMDB pour la recherche par ID
+interface FindByIDResponse {
+  movie_results: Movie[];
+  person_results: unknown[]; // Remplacer 'any' par le type approprié si disponible
+  tv_results: TVShow[];
+  tv_episode_results: unknown[]; // Remplacer 'any' par le type approprié si disponible
+  tv_season_results: unknown[]; // Remplacer 'any' par le type approprié si disponible
+}
+
+interface Genre {
+  id: number;
+  name: string;
+}
+
 // Export des types pour les utiliser dans d'autres parties de l'application
 export type {
   Movie,
@@ -69,4 +118,11 @@ export type {
   TVShow,
   TopRatedTVResponse,
   TopRatedMoviesResponse,
+  OnTheAirResponse,
+  PopularTVResponse,
+  PopularMoviesResponse,
+  DiscoverTVResponse,
+  DiscoverMoviesResponse,
+  FindByIDResponse,
+  Genre,
 };

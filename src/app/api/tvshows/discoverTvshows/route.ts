@@ -37,8 +37,8 @@ export async function GET() {
     const data: DiscoverTVResponse = await res.json();
     return NextResponse.json(data);
     //catch attrape les erreurs qui peuvent survenir lors de la requête ou du traitement de la réponse et retourne une réponse d'erreur générique
-  } catch (err) {
+  } catch {
     // En cas d'erreur, retourner une réponse d'erreur générique avec un statut 500
-    return NextResponse.json({ err: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

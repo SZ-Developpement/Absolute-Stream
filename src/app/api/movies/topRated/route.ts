@@ -33,7 +33,7 @@ export async function GET() {
     const data: TopRatedMoviesResponse = await res.json();
     // Retourne la réponse JSON au client
     return NextResponse.json(data);
-  } catch (err) {
+  } catch {
     // Gestion d’erreur serveur (ex : problème réseau)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }

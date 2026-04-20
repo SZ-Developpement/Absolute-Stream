@@ -1,9 +1,9 @@
 // Import de NextResponse pour formater la réponse API Next.js
 import { NextResponse } from "next/server";
-// Import des types TypeScript pour typer la réponse et chaque série TV
-import { OnTheAirResponse } from "@/types/tmdb";
+// Import des types TypeScript pour typer la réponse et chaque film
+import { PopularMoviesResponse } from "@/types/tmdb";
 
-// Handler GET pour la route API des séries TV actuellement à l’affiche
+// Handler GET pour la route API des films actuellement populaires
 export async function GET() {
   // Récupération de la clé d’API TMDB depuis les variables d’environnement
   const apiKey = process.env.TMDB_API_KEY;
@@ -15,8 +15,8 @@ export async function GET() {
     );
   }
 
-  // Construction de l’URL pour l’API TMDB (séries TV en ce moment)
-  const url = `https://api.themoviedb.org/3/tv/on_the_air?language=en-US&page=1&api_key=${apiKey}`;
+  // Construction de l’URL pour l’API TMDB (films populaires)
+  const url = `https://api.themoviedb.org/3/movie/popular?language=en-US&page=1&api_key=${apiKey}`;
   const options = { method: "GET", headers: { accept: "application/json" } };
 
   try {
@@ -29,8 +29,8 @@ export async function GET() {
         { status: res.status },
       );
     }
-    // Typage de la réponse JSON avec OnTheAirResponse
-    const data: OnTheAirResponse = await res.json();
+    // Typage de la réponse JSON avec PopularMoviesResponse
+    const data: PopularMoviesResponse = await res.json();
     // Retourne la réponse JSON au client
     return NextResponse.json(data);
   } catch {

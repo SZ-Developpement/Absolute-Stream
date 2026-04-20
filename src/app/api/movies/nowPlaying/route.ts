@@ -1,7 +1,7 @@
 // Import de NextResponse pour formater la réponse API Next.js
 import { NextResponse } from "next/server";
 // Import des types TypeScript pour typer la réponse et chaque film
-import { Movie, NowPlayingResponse } from "@/types/tmdb";
+import { NowPlayingResponse } from "@/types/tmdb";
 
 // Handler GET pour la route API des films actuellement à l’affiche
 export async function GET() {
@@ -33,7 +33,7 @@ export async function GET() {
     const data: NowPlayingResponse = await res.json();
     // Retourne la réponse JSON au client
     return NextResponse.json(data);
-  } catch (err) {
+  } catch {
     // Gestion d’erreur serveur (ex : problème réseau)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }

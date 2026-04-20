@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"; // Importation de NextResponse pour gérer les réponses HTTP
-import { Genre } from "@/types/tmdb"; // Importation pour typer la réponse de l'API TMDB
+import { DiscoverTVResponse } from "@/types/tmdb"; // Importation pour typer la réponse de l'API TMDB
 
-// Fonction GET pour récupérer les séries TV les mieux notées
+// Fonction GET pour récupérer les films les mieux notés
 export async function GET() {
   // Récupération de la clé API depuis les variables d'environnement
   const apiKey = process.env.TMDB_API_KEY;
@@ -15,8 +15,8 @@ export async function GET() {
     );
   }
 
-  // Construction de l'URL pour l'API TMDB pour les genres de films
-  const url = `https://api.themoviedb.org/3/genre/tv/list?language=en&api_key=${apiKey}`;
+  // Construction de l'URL pour l'API TMDB pour les films les mieux notés
+  const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&api_key=${apiKey}`;
 
   // Options pour la requête fetch, spécifiant la méthode et les en-têtes, notamment pour accepter une réponse JSON
   const options = { method: "GET", headers: { accept: "application/json" } };
@@ -33,8 +33,9 @@ export async function GET() {
       );
     }
 
-    const { genres }: { genres: Genre[] } = await res.json();
-    return NextResponse.json(genres);
+    // Si la réponse est correcte, parser les données JSON et les typer avec TopRatedTVResponse
+    const data: DiscoverTVResponse = await res.json();
+    return NextResponse.json(data);
     //catch attrape les erreurs qui peuvent survenir lors de la requête ou du traitement de la réponse et retourne une réponse d'erreur générique
   } catch {
     // En cas d'erreur, retourner une réponse d'erreur générique avec un statut 500

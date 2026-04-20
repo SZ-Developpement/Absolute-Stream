@@ -16,7 +16,7 @@ export async function GET() {
   }
 
   // Construction de l'URL pour l'API TMDB pour les genres de films
-  const url = `https://api.themoviedb.org/3/genre/tv/list?language=en&api_key=${apiKey}`;
+  const url = `https://api.themoviedb.org/3/genre/movie/list?language=en&api_key=${apiKey}`;
 
   // Options pour la requête fetch, spécifiant la méthode et les en-têtes, notamment pour accepter une réponse JSON
   const options = { method: "GET", headers: { accept: "application/json" } };
