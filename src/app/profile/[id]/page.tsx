@@ -12,12 +12,15 @@ export default async function ProfilePage({
 
   const user = await prisma.user.findUnique({
     where: { id },
-    include: {
+    select: {
+      name: true,
+      image: true,
       _count: {
         select: {
           library: true,
           favorites: true,
           lists: true,
+          followers: true,
         },
       },
     },
@@ -44,9 +47,7 @@ export default async function ProfilePage({
           />
           <div className="grid grid-rows-2 w-full">
             <div className="w-full row-span-1 row-end-3 h-full flex flex-row items-center justify-between">
-              <h4 className="text-white font-bold text-2xl">
-                {user.username || user.name}
-              </h4>
+              <h4 className="text-white font-bold text-2xl">{user.name}</h4>
 
               <div className="flex flex-row gap-2.5">
                 <div className="flex flex-row items-center gap-1.5">
