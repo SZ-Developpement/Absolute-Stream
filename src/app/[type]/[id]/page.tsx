@@ -1,4 +1,9 @@
 import Image from "next/image";
+import prisma from "@/lib/prisma";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { MediaType } from "@prisma/client";
+import FavoriteButton from "@/components/ActionMedia/FavoriteButton";
 
 interface Genre {
   id: number;
@@ -16,10 +21,7 @@ async function getMediaDetails(type: string, id: string) {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) throw new Error("Clé TMDB manquante");
 
-  // Routage : films vs séries
   const tmdbType = type === "movies" ? "movie" : "tv";
-
-  // Récupération globale (infos + acteurs)
   const url = `https://api.themoviedb.org/3/${tmdbType}/${id}?language=fr-FR&api_key=${apiKey}&append_to_response=credits`;
 
   try {
@@ -48,7 +50,31 @@ export default async function BasicMediaPage({
     );
   }
 
-  // --- TRAITEMENT DES DONNÉES (La logique importante) ---
+  // 1. Convertir le type d'URL en MediaType Prisma
+  const dbMediaType = type === "movies" ? MediaType.MOVIE : MediaType.TV_SHOW;
+  const tmdbId = parseInt(id);
+
+  // 2. Récupérer la session utilisateur
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const userId = session?.user?.id;
+
+  // 3. Vérifier l'état initial du favori dans la BDD
+  let isFavorite = false;
+  if (userId) {
+    const existingFavorite = await prisma.favorite.findUnique({
+      where: {
+        userId_tmdbId_type: {
+          userId,
+          tmdbId,
+          type: dbMediaType,
+        },
+      },
+    });
+    isFavorite = !!existingFavorite;
+  }
+
   const title = mediaData.title || mediaData.name;
   const date = mediaData.release_date || mediaData.first_air_date;
   const year = date ? new Date(date).getFullYear() : "N/A";
@@ -57,14 +83,12 @@ export default async function BasicMediaPage({
     ? `https://image.tmdb.org/t/p/w500${mediaData.poster_path}`
     : "https://via.placeholder.com/500x750?text=Pas+d'affiche";
 
-  const cast = mediaData.credits?.cast?.slice(0, 10) || []; // Les 10 premiers acteurs
+  const cast = mediaData.credits?.cast?.slice(0, 10) || [];
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-8 font-sans mt-20">
       <div className="max-w-5xl mx-auto flex flex-col gap-8">
-        {/* --- SECTION HAUT : AFFICHE ET INFOS --- */}
         <div className="flex flex-col md:flex-row gap-8 bg-gray-800 p-6 rounded-xl border border-gray-700">
-          {/* Affiche */}
           <div className="shrink-0">
             <Image
               src={posterUrl}
@@ -75,11 +99,23 @@ export default async function BasicMediaPage({
             />
           </div>
 
-          {/* Infos texte */}
-          <div className="flex flex-col gap-4">
-            <h1 className="text-4xl font-bold text-white">
-              {title} <span className="text-gray-400 text-2xl">({year})</span>
-            </h1>
+          <div className="flex flex-col gap-4 w-full">
+            <div className="flex justify-between items-start gap-4">
+              <h1 className="text-4xl font-bold text-white">
+                {title} <span className="text-gray-400 text-2xl">({year})</span>
+              </h1>
+
+              {/* Le bouton ne s'affiche que si l'utilisateur est connecté */}
+              {userId && (
+                <div className="mt-1">
+                  <FavoriteButton
+                    tmdbId={tmdbId}
+                    type={dbMediaType}
+                    initialIsFavorite={isFavorite}
+                  />
+                </div>
+              )}
+            </div>
 
             <div className="flex gap-4 text-sm font-semibold text-gray-300">
               <span className="bg-gray-700 px-3 py-1 rounded">
@@ -98,7 +134,6 @@ export default async function BasicMediaPage({
               </p>
             </div>
 
-            {/* Genres */}
             <div className="flex gap-2 flex-wrap mt-auto">
               {mediaData.genres?.map((g: Genre) => (
                 <span
@@ -112,7 +147,6 @@ export default async function BasicMediaPage({
           </div>
         </div>
 
-        {/* --- SECTION BAS : ACTEURS --- */}
         <div>
           <h2 className="text-2xl font-bold mb-4 text-white">
             Casting Principal
@@ -151,8 +185,6 @@ export default async function BasicMediaPage({
           )}
         </div>
 
-        {/* --- BONUS : DEBUG JSON CACHÉ --- */}
-        {/* Tu peux cliquer dessus pour voir les données brutes si tu cherches une variable précise */}
         <details className="mt-10 bg-black/50 p-4 rounded border border-gray-800 cursor-pointer">
           <summary className="font-mono text-sm text-gray-500 hover:text-white">
             Afficher le JSON complet de TMDB (pour le debug)
