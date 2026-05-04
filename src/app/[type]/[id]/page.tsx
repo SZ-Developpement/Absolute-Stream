@@ -1,3 +1,17 @@
+import Image from "next/image";
+
+interface Genre {
+  id: number;
+  name: string;
+}
+
+interface Actor {
+  id: number;
+  name: string;
+  character: string;
+  profile_path: string | null;
+}
+
 async function getMediaDetails(type: string, id: string) {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) throw new Error("Clé TMDB manquante");
@@ -29,7 +43,7 @@ export default async function BasicMediaPage({
   if (!mediaData) {
     return (
       <div className="p-10 text-red-500 font-bold text-xl">
-        Erreur : Média introuvable (Vérifie ton URL ou l'ID)
+        Erreur : Média introuvable (Vérifie ton URL ou l&apos;ID)
       </div>
     );
   }
@@ -52,10 +66,12 @@ export default async function BasicMediaPage({
         <div className="flex flex-col md:flex-row gap-8 bg-gray-800 p-6 rounded-xl border border-gray-700">
           {/* Affiche */}
           <div className="shrink-0">
-            <img
+            <Image
               src={posterUrl}
               alt={title}
-              className="w-64 rounded-lg shadow-lg object-cover"
+              width={500}
+              height={750}
+              className=" rounded-lg shadow-lg object-cover"
             />
           </div>
 
@@ -70,7 +86,7 @@ export default async function BasicMediaPage({
                 Note : {mediaData.vote_average?.toFixed(1)}/10
               </span>
               <span className="bg-gray-700 px-3 py-1 rounded">
-                Type d'URL : {type}
+                Type d&apos;URL : {type}
               </span>
             </div>
 
@@ -84,7 +100,7 @@ export default async function BasicMediaPage({
 
             {/* Genres */}
             <div className="flex gap-2 flex-wrap mt-auto">
-              {mediaData.genres?.map((g: any) => (
+              {mediaData.genres?.map((g: Genre) => (
                 <span
                   key={g.id}
                   className="text-xs border border-gray-500 px-2 py-1 rounded-full"
@@ -103,19 +119,21 @@ export default async function BasicMediaPage({
           </h2>
           {cast.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-              {cast.map((actor: any) => (
+              {cast.map((actor: Actor) => (
                 <div
                   key={actor.id}
                   className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 flex flex-col"
                 >
-                  <img
+                  <Image
                     src={
                       actor.profile_path
                         ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
                         : "https://via.placeholder.com/185x278?text=Photo"
                     }
                     alt={actor.name}
-                    className="w-full h-48 object-cover"
+                    className="w-full object-cover"
+                    width={185}
+                    height={278}
                   />
                   <div className="p-3 flex-1 flex flex-col justify-center">
                     <p className="font-bold text-sm text-white text-center leading-tight">
