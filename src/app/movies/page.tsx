@@ -1,47 +1,171 @@
 import { EmblaCarousel } from "@/components/library/EmblaCarousel";
 import MediaCards from "@/components/library/MediaCards";
-import { PopularMediaResponse, Media } from "@/types/tmdb";
+import { DiscoverMovies } from "@/components/library/DiscoverMovies";
+import {
+  PopularMediaResponse,
+  TopRatedMediaResponse,
+  DiscoverMediaResponse,
+} from "@/types/tmdb";
+import { Media, Genre } from "@/types/tmdb";
 
+// ------ FONCTION POUR RÉCUPÉRER LES FILMS POPULAIRES ------ \\
+
+/* On a besoin de Promise parce que l’appel API est asynchrone
+cela permet au reste du code d’attendre proprement 
+le tableau de films quand il est prêt */
 async function getPopularMovies(): Promise<Media[]> {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
     console.error("TMDB_API_KEY is missing");
-    return []; // On retourne un tableau vide pour éviter que la page ne plante.
+    return []; // On retourne un tableau vide  si la clé d'API est manquante pour éviter de planter l'application.
   }
 
   const url = `https://api.themoviedb.org/3/movie/popular?language=en-US&page=1&api_key=${apiKey}`;
   const options = {
     method: "GET",
+    // TMDB recommande d'inclure un header "Accept" pour indiquer que nous attendons une réponse JSON.
     headers: { accept: "application/json" },
     // On met en cache le résultat pendant 1h pour ne pas surcharger l'API de TMDB.
     next: { revalidate: 3600 },
   };
-
+  // On utilise un bloc try/catch pour gérer les erreurs réseau ou les réponses non-OK de l'API.
   try {
     const res = await fetch(url, options);
     if (!res.ok) {
       console.error(`Failed to fetch popular movies: ${res.statusText}`);
       return [];
     }
+    // On parse la réponse JSON et on retourne la liste des films populaires.
     const data: PopularMediaResponse = await res.json();
     // L'API TMDB renvoie les films dans la propriété "results".
-    return data.results || [];
+    return data.results || []; // On retourne un tableau vide si "results" est undefined, || = opérateur de coalescence nulle pour éviter les erreurs de type.
   } catch (error) {
     console.error("Network error while fetching popular movies:", error);
     return [];
   }
 }
 
+// ------ FONCTION POUR RÉCUPÉRER LES FILMS LES MIEUX NOTÉS ------ \\
+async function getTopRatedMedia(): Promise<Media[]> {
+  const apiKey = process.env.TMDB_API_KEY;
+  if (!apiKey) {
+    console.error("TMDB_API_KEY is missing");
+    return []; // On retourne un tableau vide  si la clé d'API est manquante pour éviter de planter l'application.
+  }
+
+  const url = `https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1&api_key=${apiKey}`;
+  const options = {
+    method: "GET",
+    // TMDB recommande d'inclure un header "Accept" pour indiquer que nous attendons une réponse JSON.
+    headers: { accept: "application/json" },
+    // On met en cache le résultat pendant 1h pour ne pas surcharger l'API de TMDB.
+    next: { revalidate: 3600 },
+  };
+  // On utilise un bloc try/catch pour gérer les erreurs réseau ou les réponses non-OK de l'API.
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      console.error(`Failed to fetch top rated movies: ${res.statusText}`);
+      return [];
+    }
+    // On parse la réponse JSON et on retourne la liste des films les mieux notés.
+    const data: TopRatedMediaResponse = await res.json();
+    // L'API TMDB renvoie les films dans la propriété "results".
+    return data.results || []; // On retourne un tableau vide si "results" est undefined, || = opérateur de coalescence nulle pour éviter les erreurs de type.
+  } catch (error) {
+    console.error("Network error while fetching top rated movies:", error);
+    return [];
+  }
+}
+
+// ------ FONCTION POUR RÉCUPÉRER LES FILMS À DÉCOUVRIR ------ \\
+async function getDiscoverMovies(): Promise<Media[]> {
+  const apiKey = process.env.TMDB_API_KEY;
+  if (!apiKey) {
+    console.error("TMDB_API_KEY is missing");
+    return [];
+  }
+
+  const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&api_key=${apiKey}`;
+  const options = {
+    method: "GET",
+    headers: { accept: "application/json" },
+    next: { revalidate: 3600 },
+  };
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      console.error(`Failed to fetch discover movies: ${res.statusText}`);
+      return [];
+    }
+    const data: DiscoverMediaResponse = await res.json();
+    return data.results || [];
+  } catch (error) {
+    console.error("Network error while fetching discover movies:", error);
+    return [];
+  }
+}
+
+// ------ FONCTION POUR RÉCUPÉRER LES GENRES DE FILMS ------ \\
+async function getMovieGenres(): Promise<Genre[]> {
+  const apiKey = process.env.TMDB_API_KEY;
+  if (!apiKey) {
+    console.error("TMDB_API_KEY is missing");
+    return [];
+  }
+
+  const url = `https://api.themoviedb.org/3/genre/movie/list?language=en&api_key=${apiKey}`;
+  const options = {
+    method: "GET",
+    headers: { accept: "application/json" },
+    next: { revalidate: 86400 }, // Les genres changent peu, on met en cache pour 24h
+  };
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      console.error(`Failed to fetch movie genres: ${res.statusText}`);
+      return [];
+    }
+    const data: { genres: Genre[] } = await res.json();
+    return data.genres || [];
+  } catch (error) {
+    console.error("Network error while fetching movie genres:", error);
+    return [];
+  }
+}
+
 export default async function MoviesPage() {
-  // On appelle directement la fonction qui récupère les données sur le serveur.
+  // On appelle directement les fonctions qui récupèrent les données sur le serveur.
+  const topRatedMovies = await getTopRatedMedia();
   const popularMovies = await getPopularMovies();
+  const discoverMovies = await getDiscoverMovies();
+  const movieGenres = await getMovieGenres();
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
-      <div className="flex flex-col gap-2 w-full mt-110">
-        <h1 className=" mt-4 text-1xl font-bold">Tendances du moment</h1>
-        <EmblaCarousel opts={{ align: "start", loop: true, dragFree: true }}>
-          <MediaCards mediaList={popularMovies} />
-        </EmblaCarousel>
+      <div className="flex flex-col gap-2 w-full mt-120">
+        {/* TENDANCES DU MOMENT */}
+        <div className="my-8">
+          <h1 className="text-lg font-bold my-6">Tendances du moment</h1>
+          <EmblaCarousel opts={{ align: "start", loop: true, dragFree: true }}>
+            <MediaCards mediaList={popularMovies} />
+          </EmblaCarousel>
+        </div>
+
+        {/* LES MIEUX NOTÉS */}
+        <div className="my-8">
+          <h1 className="text-lg font-bold my-6">Les mieux notés</h1>
+          <EmblaCarousel opts={{ align: "start", loop: true, dragFree: true }}>
+            <MediaCards mediaList={topRatedMovies} />
+          </EmblaCarousel>
+        </div>
+
+        {/* DÉCOUVRIR DES FILMS */}
+        <DiscoverMovies
+          initialMovies={discoverMovies}
+          genres={movieGenres}
+          className="my-8"
+        />
       </div>
     </div>
   );

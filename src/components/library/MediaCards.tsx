@@ -3,10 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Media } from "@/types/tmdb";
 
+// On reçoit une liste de médias en props, typée avec le type Media défini dans types/tmdb.ts
+// La destruc
 export default function MediaCards({ mediaList }: { mediaList: Media[] }) {
   return (
-    // MediaCards se contente de rendre la liste des médias, la logique de défilement est dans le parent Carousel
     <>
+      {/* On mappe sur la liste de médias pour créer une carte pour chaque média 
+        map = fonction de tableau qui itère sur chaque élément du tableau mediaList
+        et retourne un nouveau tableau de JSX */}
       {mediaList.map((Media) => (
         <Link
           key={Media.id}
