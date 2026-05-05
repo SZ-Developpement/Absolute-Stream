@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"; // Importation de NextResponse pour gérer les réponses HTTP
-import { DiscoverTVResponse } from "@/types/tmdb"; // Importation pour typer la réponse de l'API TMDB
+import { DiscoverMediaResponse } from "@/types/tmdb"; // Importation pour typer la réponse de l'API TMDB
 
 // Fonction GET pour récupérer les séries TV les mieux notées
 export async function GET() {
@@ -33,8 +33,8 @@ export async function GET() {
       );
     }
 
-    // Si la réponse est correcte, parser les données JSON et les typer avec TopRatedTVResponse
-    const data: DiscoverTVResponse = await res.json();
+    // Si la réponse est correcte, parser les données JSON et les typer avec DiscoverMediaResponse
+    const data: DiscoverMediaResponse = await res.json();
     return NextResponse.json(data);
     //catch attrape les erreurs qui peuvent survenir lors de la requête ou du traitement de la réponse et retourne une réponse d'erreur générique
   } catch {
