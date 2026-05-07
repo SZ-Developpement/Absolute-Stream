@@ -1,7 +1,7 @@
 // Import de NextResponse pour formater la réponse API Next.js
 import { NextResponse } from "next/server";
 // Import des types TypeScript pour typer la réponse et chaque film
-import { PopularTVResponse } from "@/types/tmdb";
+import { PopularMediaResponse } from "@/types/tmdb";
 
 // Handler GET pour la route API des séries TV actuellement populaires
 export async function GET() {
@@ -29,8 +29,8 @@ export async function GET() {
         { status: res.status },
       );
     }
-    // Typage de la réponse JSON avec PopularTVResponse
-    const data: PopularTVResponse = await res.json();
+    // Typage de la réponse JSON avec PopularMediaResponse
+    const data: PopularMediaResponse = await res.json();
     // Retourne la réponse JSON au client
     return NextResponse.json(data);
   } catch {

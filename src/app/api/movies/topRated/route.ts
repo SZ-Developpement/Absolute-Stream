@@ -1,7 +1,7 @@
 // Import de NextResponse pour formater la réponse API Next.js
 import { NextResponse } from "next/server";
 // Import du type TypeScript pour typer la réponse de l’API TMDB
-import { TopRatedMoviesResponse } from "@/types/tmdb";
+import { TopRatedMediaResponse } from "@/types/tmdb";
 
 // Handler GET pour la route API des films les mieux notés
 export async function GET() {
@@ -29,8 +29,8 @@ export async function GET() {
         { status: res.status },
       );
     }
-    // Typage de la réponse JSON avec TopRatedMoviesResponse
-    const data: TopRatedMoviesResponse = await res.json();
+    // Typage de la réponse JSON avec TopRatedMediaResponse
+    const data: TopRatedMediaResponse = await res.json();
     // Retourne la réponse JSON au client
     return NextResponse.json(data);
   } catch {
