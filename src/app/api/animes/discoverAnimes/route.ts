@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"; // Importation de NextResponse pour 
 import { NextRequest } from "next/server";
 import { DiscoverMediaResponse } from "@/types/tmdb"; // Importation pour typer la réponse de l'API TMDB
 
-// Fonction GET pour récupérer les séries TV à découvrir (avec genre et tri optionnels)
+// Fonction GET pour récupérer les animes à découvrir (avec genre et tri optionnels)
 export async function GET(request: NextRequest) {
   // Récupération de la clé API depuis les variables d'environnement
   const apiKey = process.env.TMDB_API_KEY;
@@ -20,7 +20,9 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Construction de l'URL pour l'API TMDB pour découvrir des séries TV
+  // Construction de l'URL pour l'API TMDB pour découvrir des animes
+  // Les filtres anime (genre Animation 16 + origine Japon) restent toujours appliqués.
+  // Si l'utilisateur choisit un genre supplémentaire, on combine avec 16 (la virgule = AND côté TMDB).
   const url = new URL("https://api.themoviedb.org/3/discover/tv");
   url.searchParams.append("api_key", apiKey);
   url.searchParams.append("include_adult", "false");
@@ -28,9 +30,8 @@ export async function GET(request: NextRequest) {
   url.searchParams.append("language", "en-US");
   url.searchParams.append("page", "1");
   url.searchParams.append("sort_by", sortBy);
-  if (withGenres) {
-    url.searchParams.append("with_genres", withGenres);
-  }
+  url.searchParams.append("with_genres", withGenres ? `16,${withGenres}` : "16");
+  url.searchParams.append("with_origin_country", "JP");
 
   // Options pour la requête fetch, spécifiant la méthode et les en-têtes, notamment pour accepter une réponse JSON
   const options = { method: "GET", headers: { accept: "application/json" } };
@@ -49,15 +50,7 @@ export async function GET(request: NextRequest) {
 
     // Si la réponse est correcte, parser les données JSON et les typer avec DiscoverMediaResponse
     const data: DiscoverMediaResponse = await res.json();
-    // Exclure les anime (genre Animation 16 + origine Japon) pour rester cohérent avec /series.
-    const filtered = {
-      ...data,
-      results: (data.results || []).filter(
-        (m) =>
-          !(m.genre_ids?.includes(16) && m.origin_country?.includes("JP")),
-      ),
-    };
-    return NextResponse.json(filtered);
+    return NextResponse.json(data);
     //catch attrape les erreurs qui peuvent survenir lors de la requête ou du traitement de la réponse et retourne une réponse d'erreur générique
   } catch {
     // En cas d'erreur, retourner une réponse d'erreur générique avec un statut 500

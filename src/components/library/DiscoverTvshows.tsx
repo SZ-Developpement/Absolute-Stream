@@ -1,19 +1,20 @@
 "use client"; // Indique que ce composant doit être rendu côté client, nécessaire pour utiliser les hooks d'état et d'effet de React.
 
-import { useState, useEffect, useTransition, useRef } from "react";
+import { useState, useEffect, useTransition, useRef } from "react"; // Hooks React pour gérer l'état, les effets de bord, les transitions d'état et les références
 import { cn } from "@/lib/utils"; // Assuming you have a cn utility for tailwind-merge
 import { Media, Genre } from "@/types/tmdb";
 import MediaCards from "@/components/library/MediaCards";
 
-export function DiscoverMovies({
-  initialMovies,
+export function DiscoverTvshows({
+  // Props attendus : initialSeries (séries initiales à afficher) et genres (liste des genres disponibles pour filtrer)
+  initialSeries, 
   genres,
 }: {
   className?: string;
-  initialMovies: Media[];
+  initialSeries: Media[];
   genres: Genre[];
 }) {
-  const [movies, setMovies] = useState<Media[]>(initialMovies); // On initialise l'état des films avec les films passés en props pour éviter un écran vide au chargement initial.
+  const [series, setSeries] = useState<Media[]>(initialSeries); // On initialise l'état des séries avec les séries passées en props pour éviter un écran vide au chargement initial.
   const [selectedGenre, setSelectedGenre] = useState<string>(""); // État pour stocker le genre sélectionné
   const [sortBy, setSortBy] = useState<string>("popularity.desc");
   const [isPending, startTransition] = useTransition(); // Hook pour gérer les transitions d'état sans bloquer l'interface utilisateur
@@ -29,7 +30,7 @@ export function DiscoverMovies({
     //
     startTransition(async () => {
       const params = new URLSearchParams({
-        // On construit les paramètres de la requête pour l'API de découverte de films, en incluant le tri et le genre sélectionné
+        // On construit les paramètres de la requête pour l'API de découverte de séries, en incluant le tri et le genre sélectionné
         sort_by: sortBy,
       });
       if (selectedGenre) {
@@ -39,18 +40,18 @@ export function DiscoverMovies({
       try {
         const res = await fetch(
           // On fait une requête à notre API interne qui va ensuite faire la requête à TMDB, params.toString() convertit les paramètres en une chaîne de requête
-          `/api/movies/discoverMovies?${params.toString()}`,
+          `/api/tvshows/discoverTvshows?${params.toString()}`,
         );
         if (res.ok) {
           const data = await res.json();
-          setMovies(data.results || []);
+          setSeries(data.results || []);
         } else {
-          console.error("Failed to fetch discover movies");
-          setMovies([]);
+          console.error("Failed to fetch discover series");
+          setSeries([]);
         }
       } catch (error) {
-        console.error("Error fetching discover movies:", error);
-        setMovies([]);
+        console.error("Error fetching discover series:", error);
+        setSeries([]);
       }
     });
   }, [selectedGenre, sortBy]);
@@ -59,7 +60,7 @@ export function DiscoverMovies({
     <div className={cn("flex flex-col gap-6 w-full my-20 max-w-7xl mx-auto")}>
       {/* Filter Header */}
       <div className="flex flex-wrap items-end gap-x-6 gap-y-4">
-        <h2 className="text-lg font-bold ml-8">Découvrir des films</h2>
+        <h2 className="text-lg font-bold ml-8">Découvrir des séries</h2>
         <div className="flex flex-col gap-1">
           {/* <label
             htmlFor="genre-select"
@@ -109,11 +110,11 @@ export function DiscoverMovies({
           isPending ? "opacity-50" : "opacity-100"
         }`}
       >
-        {movies.length > 0 ? <MediaCards mediaList={movies} /> : null}
+        {series.length > 0 ? <MediaCards mediaList={series} /> : null}
       </div>
-      {movies.length === 0 && !isPending && (
+      {series.length === 0 && !isPending && (
         <p className="text-center py-8">
-          Aucun film ne correspond à vos critères.
+          Aucune série ne correspond à vos critères.
         </p>
       )}
     </div>
