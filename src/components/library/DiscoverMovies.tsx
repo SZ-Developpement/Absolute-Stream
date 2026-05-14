@@ -59,9 +59,7 @@ export function DiscoverMovies({
     <div className={cn("flex flex-col gap-4 w-full")}>
       {/* Filter Header */}
       <div className="flex flex-row items-center justify-between w-full">
-        <h2 className="text-lg xl:text-xl text-white font-semibold capitalize">
-          Découvrir des films
-        </h2>
+        <h2 className="title-category">Découvrir des films</h2>
         {/* <div className="flex flex-col gap-1">
           <label
             htmlFor="genre-select"
