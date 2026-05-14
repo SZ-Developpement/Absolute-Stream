@@ -142,31 +142,27 @@ export default async function MoviesPage() {
   const movieGenres = await getMovieGenres();
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4">
-      <div className="flex flex-col gap-2 w-full mt-120">
-        {/* TENDANCES DU MOMENT */}
-        <div className="my-8">
-          <h1 className="text-lg font-bold my-6">Tendances du moment</h1>
-          <EmblaCarousel opts={{ align: "start", loop: true, dragFree: true }}>
-            <MediaCards mediaList={popularMovies} />
-          </EmblaCarousel>
-        </div>
+    <div className="container-page my-10">
+      <div className="w-full h-130" />
 
-        {/* LES MIEUX NOTÉS */}
-        <div className="my-8">
-          <h1 className="text-lg font-bold my-6">Les mieux notés</h1>
-          <EmblaCarousel opts={{ align: "start", loop: true, dragFree: true }}>
-            <MediaCards mediaList={topRatedMovies} />
-          </EmblaCarousel>
-        </div>
+      {/* TENDANCES DU MOMENT */}
+      <EmblaCarousel
+        title="Tendances du moment"
+        opts={{ align: "start", loop: true, dragFree: true }}
+      >
+        <MediaCards mediaList={popularMovies} />
+      </EmblaCarousel>
 
-        {/* DÉCOUVRIR DES FILMS */}
-        <DiscoverMovies
-          initialMovies={discoverMovies}
-          genres={movieGenres}
-          className="my-8"
-        />
-      </div>
+      {/* LES MIEUX NOTÉS */}
+      <EmblaCarousel
+        title="Les mieux notés"
+        opts={{ align: "start", loop: true, dragFree: true }}
+      >
+        <MediaCards mediaList={topRatedMovies} />
+      </EmblaCarousel>
+
+      {/* DÉCOUVRIR DES FILMS */}
+      <DiscoverMovies initialMovies={discoverMovies} genres={movieGenres} />
     </div>
   );
 }
