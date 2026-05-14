@@ -17,7 +17,7 @@ export default function MediaCards({ mediaList }: { mediaList: Media[] }) {
         <Link
           key={Media.id}
           href={`/movies/${Media.id}`}
-          className="group relative aspect-[2/3] w-full overflow-hidden rounded-md bg-zinc-900 transition-transform"
+          className="group relative block aspect-[2/3] w-[172px] shrink-0 overflow-hidden rounded-md bg-zinc-900"
         >
           <Image
             src={
