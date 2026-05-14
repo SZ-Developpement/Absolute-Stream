@@ -56,17 +56,19 @@ export function DiscoverMovies({
   }, [selectedGenre, sortBy]);
 
   return (
-    <div className={cn("flex flex-col gap-6 w-full my-20 max-w-7xl mx-auto")}>
+    <div className={cn("flex flex-col gap-4 w-full")}>
       {/* Filter Header */}
-      <div className="flex flex-wrap items-end gap-x-6 gap-y-4">
-        <h2 className="text-lg font-bold ml-8">Découvrir des films</h2>
-        <div className="flex flex-col gap-1">
-          {/* <label
+      <div className="flex flex-row items-center justify-between w-full">
+        <h2 className="text-lg xl:text-xl text-white font-semibold capitalize">
+          Découvrir des films
+        </h2>
+        {/* <div className="flex flex-col gap-1">
+          <label
             htmlFor="genre-select"
             className="text-sm font-medium text-foreground/80"
           >
             Genre
-          </label> */}
+          </label>
           <select
             id="genre-select"
             value={selectedGenre}
@@ -82,12 +84,12 @@ export function DiscoverMovies({
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          {/* <label
+          <label
             htmlFor="sort-select"
             className="text-sm font-medium text-foreground/80"
           >
             Trier par
-          </label> */}
+          </label>
           <select
             id="sort-select"
             value={sortBy}
@@ -101,11 +103,11 @@ export function DiscoverMovies({
             <option value="primary_release_date.desc">Plus Récents</option>
             <option value="primary_release_date.asc">Plus Anciens</option>
           </select>
-        </div>
+        </div> */}
       </div>
 
       <div
-        className={`grid justify-items-center grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 transition-opacity ${
+        className={`justify-items-center grid grid-cols-2 xl:grid-cols-6 2xl:grid-cols-8 gap-4 transition-opacity ${
           isPending ? "opacity-50" : "opacity-100"
         }`}
       >
