@@ -25,7 +25,7 @@ export default function MediaCards({ mediaList }: { mediaList: Media[] }) {
                 ? `https://image.tmdb.org/t/p/w500${Media.poster_path}`
                 : "/path/to/default-poster.jpg"
             }
-            alt={Media.title}
+            alt={Media.title ?? Media.name ?? "Poster"}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -50,7 +50,7 @@ export default function MediaCards({ mediaList }: { mediaList: Media[] }) {
               {Media.release_date?.split("-")[0] || "2026"}
             </p>
             <h3 className="line-clamp-1 text-[13px] font-semibold text-white">
-              {Media.title}
+              {Media.title ?? Media.name ?? "Titre non disponible"}
             </h3>
           </div>
         </Link>
