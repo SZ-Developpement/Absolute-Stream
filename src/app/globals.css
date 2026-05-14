@@ -20,3 +20,17 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+.container-page {
+  @apply space-y-8;
+  max-width: 1536px;
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 24px;
+  padding-left: 24px;
+}
+
+.title-category {
+  @apply text-lg xl:text-xl text-white font-semibold capitalize;
+}
