@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition, useRef } from "react";
 import { cn } from "@/lib/utils"; // Assuming you have a cn utility for tailwind-merge
 import { Media, Genre } from "@/types/tmdb";
 import MediaCards from "@/components/library/MediaCards";
+import { ArrowDownUp, ListFilter } from "lucide-react";
 
 export function DiscoverMovies({
   initialMovies,
@@ -80,8 +81,8 @@ export function DiscoverMovies({
               </option>
             ))}
           </select>
-        </div>
-        <div className="flex flex-col gap-1">
+        </div> */}
+        {/* <div className="flex flex-col gap-1">
           <label
             htmlFor="sort-select"
             className="text-sm font-medium text-foreground/80"
@@ -102,6 +103,30 @@ export function DiscoverMovies({
             <option value="primary_release_date.asc">Plus Anciens</option>
           </select>
         </div> */}
+
+        <div className="flex flex-row gap-2 items-center ">
+          <button
+            onClick={() => {
+              setSelectedGenre("");
+              setSortBy("popularity.desc");
+            }}
+            className="w-full whitespace-nowrap py-2 px-4 flex flex-row justify-center items-center gap-2 text-sm text-center rounded-lg text-white hover:text-gray-300 bg-background/70 hover:bg-background/60 cursor-pointer"
+          >
+            <ListFilter size={14} />
+            Filtrez par Genre
+          </button>
+
+          <button
+            onClick={() => {
+              setSelectedGenre("");
+              setSortBy("popularity.desc");
+            }}
+            className="w-full whitespace-nowrap py-2 px-4 flex flex-row justify-center items-center gap-2 text-sm text-center rounded-lg text-white hover:text-gray-300 bg-background/70 hover:bg-background/60 cursor-pointer"
+          >
+            <ArrowDownUp size={14} />
+            Triez
+          </button>
+        </div>
       </div>
 
       <div
