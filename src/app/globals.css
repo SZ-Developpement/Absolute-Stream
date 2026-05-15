@@ -22,13 +22,16 @@ body {
 }
 
 .container-page {
-  @apply space-y-8;
   max-width: 1536px;
   width: 100%;
   margin-right: auto;
   margin-left: auto;
+  margin-top: 60px;
   padding-right: 24px;
   padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .title-category {

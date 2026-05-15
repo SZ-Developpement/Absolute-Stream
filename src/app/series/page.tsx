@@ -124,8 +124,8 @@ export default async function SeriesPage() {
   const seriesGenres = await getSeriesGenres();
 
   return (
-    <div className="container-page my-10">
-      <div className="w-full h-130" />
+    <div className="container-page">
+      <div className="w-full h-120" />
 
       {/* TENDANCES DU MOMENT */}
       <EmblaCarousel
