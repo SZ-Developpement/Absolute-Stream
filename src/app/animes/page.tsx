@@ -119,31 +119,27 @@ export default async function AnimesPage() {
   const animeGenres = await getAnimeGenres();
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4">
-      <div className="flex flex-col gap-2 w-full mt-120">
-        {/* TENDANCES DU MOMENT */}
-        <div className="my-8">
-          <h1 className="text-lg font-bold my-6">Tendances du moment</h1>
-          <EmblaCarousel opts={{ align: "start", loop: true, dragFree: true }}>
-            <MediaCards mediaList={popularAnimes} />
-          </EmblaCarousel>
-        </div>
+    <div className="container-page">
+      <div className="w-full h-120" />
 
-        {/* LES MIEUX NOTÉS */}
-        <div className="my-8">
-          <h1 className="text-lg font-bold my-6">Les mieux notés</h1>
-          <EmblaCarousel opts={{ align: "start", loop: true, dragFree: true }}>
-            <MediaCards mediaList={topRatedAnimes} />
-          </EmblaCarousel>
-        </div>
+      {/* TENDANCES DU MOMENT */}
+      <EmblaCarousel
+        title="Tendances du moment"
+        opts={{ align: "start", loop: true, dragFree: true }}
+      >
+        <MediaCards mediaList={popularAnimes} />
+      </EmblaCarousel>
 
-        {/* DÉCOUVRIR DES ANIMES */}
-        <DiscoverAnimes
-          initialAnimes={discoverAnimes}
-          genres={animeGenres}
-          className="my-8"
-        />
-      </div>
+      {/* LES MIEUX NOTÉS */}
+      <EmblaCarousel
+        title="Les mieux notés"
+        opts={{ align: "start", loop: true, dragFree: true }}
+      >
+        <MediaCards mediaList={topRatedAnimes} />
+      </EmblaCarousel>
+
+      {/* DÉCOUVRIR DES ANIMES */}
+      <DiscoverAnimes initialAnimes={discoverAnimes} genres={animeGenres} />
     </div>
   );
 }

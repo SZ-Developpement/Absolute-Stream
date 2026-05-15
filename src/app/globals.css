@@ -20,3 +20,20 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+.container-page {
+  max-width: 1536px;
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 60px;
+  padding-right: 24px;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.title-category {
+  @apply text-lg xl:text-xl text-white font-semibold capitalize;
+}
