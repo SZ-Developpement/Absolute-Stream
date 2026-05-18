@@ -48,7 +48,7 @@ export const navItems: NavItem[] = [
   },
   {
     icon: Gamepad2,
-    name: "Games",
-    href: "/games",
+    name: "Tournoi",
+    href: "/tournoi",
   },
 ];

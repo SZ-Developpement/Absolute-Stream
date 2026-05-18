@@ -39,14 +39,14 @@ export function EmblaCarousel({
           <div className="flex flex-row items-center gap-2">
             <button
               onClick={scrollPrev}
-              className="p-1.5 rounded-full bg-background/70 shadow-md hover:bg-background/90 transition-colors"
+              className="p-1.5 rounded-full bg-background/70 shadow-md hover:bg-background/90 transition-colors cursor-pointer"
               aria-label="Slide précédent"
             >
               <ChevronLeft className="h-4 w-4 text-foreground" />
             </button>
             <button
               onClick={scrollNext}
-              className="p-1.5 rounded-full bg-background/70 shadow-md hover:bg-background/90 transition-colors"
+              className="p-1.5 rounded-full bg-background/70 shadow-md hover:bg-background/90 transition-colors cursor-pointer"
               aria-label="Slide suivant"
             >
               <ChevronRight className="h-4 w-4 text-foreground" />

@@ -63,49 +63,6 @@ export function DiscoverMovies({
       {/* Filter Header */}
       <div className="flex flex-row items-center justify-between w-full">
         <h2 className="title-category">Découvrir des films</h2>
-        {/* <div className="flex flex-col gap-1">
-          <label
-            htmlFor="genre-select"
-            className="text-sm font-medium text-foreground/80"
-          >
-            Genre
-          </label>
-          <select
-            id="genre-select"
-            value={selectedGenre}
-            onChange={(e) => setSelectedGenre(e.target.value)}
-            className="p-2 text-sm rounded-md bg-background/50 border border-foreground/20 text-foreground focus:ring-2 focus:ring-primary focus:border-transparent w-48"
-          >
-            <option value="">Tous</option>
-            {genres.map((genre) => (
-              <option key={genre.id} value={genre.id.toString()}>
-                {genre.name}
-              </option>
-            ))}
-          </select>
-        </div> */}
-        {/* <div className="flex flex-col gap-1">
-          <label
-            htmlFor="sort-select"
-            className="text-sm font-medium text-foreground/80"
-          >
-            Trier par
-          </label>
-          <select
-            id="sort-select"
-            value={sortBy}
-            onChange={
-            className="p-2 text-sm rounded-md bg-background/50 border border-foreground/20 text-foreground focus:ring-2 focus:ring-primary focus:border-transparent w-58"
-          >
-            <option value="popularity.desc">Popularité Décroissante</option>
-            <option value="popularity.asc">Popularité Croissante</option>
-            <option value="vote_average.desc">Note Décroissante</option>
-            <option value="vote_average.asc">Note Croissante</option>
-            <option value="primary_release_date.desc">Plus Récents</option>
-            <option value="primary_release_date.asc">Plus Anciens</option>
-          </select>
-        </div> */}
-
         <div className="flex flex-row gap-2 items-center ">
           <button
             onClick={() => {
