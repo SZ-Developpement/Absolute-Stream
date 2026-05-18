@@ -8,6 +8,11 @@ interface ImageData {
 
 export const pageDesign: ImageData[] = [
   {
+    name: "home",
+    src: "https://image.tmdb.org/t/p/original/7I6VUdPj6tQECNHdviJkUHD2u89.jpg",
+    exact: true,
+  },
+  {
     name: "movies",
     src: "https://image.tmdb.org/t/p/original/rshlQ6LfPRSWFhpGL4s5ZkIPR51.jpg",
     exact: true,
