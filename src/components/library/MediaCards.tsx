@@ -27,6 +27,7 @@ export default function MediaCards({ mediaList }: { mediaList: Media[] }) {
             }
             alt={Media.title ?? Media.name ?? "Poster"}
             fill
+            loading="eager"
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
