@@ -1,8 +1,7 @@
+import { DiscoverMedia } from "@/components/medias/DiscoverMedia";
 import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
-import LibraryContainer from "@/components/medias/LibraryContainer";
 import MediaCards from "@/components/medias/MediaCards";
 import MediaContainer from "@/components/medias/MediaContainer";
-import { DiscoverMovies } from "@/components/movies/DiscoverMovies";
 import {
   PopularMediaResponse,
   TopRatedMediaResponse,
@@ -168,7 +167,13 @@ export default async function MoviesPage() {
       </EmblaCarousel>
 
       {/* DÉCOUVRIR DES FILMS */}
-      <DiscoverMovies initialMovies={discoverMovies} genres={movieGenres} />
+      <DiscoverMedia
+        title="Découvrir des films"
+        emptyMessage="Aucun film ne correspond à vos critères."
+        fetchEndpoint="/api/movies/discoverMovies"
+        initialData={discoverMovies}
+        genres={movieGenres}
+      />
     </MediaContainer>
   );
 }

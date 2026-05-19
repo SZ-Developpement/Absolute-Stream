@@ -1,7 +1,7 @@
+import { DiscoverMedia } from "@/components/medias/DiscoverMedia";
 import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
 import MediaCards from "@/components/medias/MediaCards";
 import MediaContainer from "@/components/medias/MediaContainer";
-import { DiscoverTvshows } from "@/components/series/DiscoverTvshows";
 import {
   PopularMediaResponse,
   TopRatedMediaResponse,
@@ -149,7 +149,13 @@ export default async function SeriesPage() {
       </EmblaCarousel>
 
       {/* DÉCOUVRIR DES SÉRIES */}
-      <DiscoverTvshows initialSeries={discoverSeries} genres={seriesGenres} />
+      <DiscoverMedia
+        title="Découvrir des séries"
+        emptyMessage="Aucune série ne correspond à vos critères."
+        fetchEndpoint="/api/series/discoverTvshows"
+        initialData={discoverSeries}
+        genres={seriesGenres}
+      />
     </MediaContainer>
   );
 }

@@ -1,6 +1,5 @@
 import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
 import MediaCards from "@/components/medias/MediaCards";
-import { DiscoverAnimes } from "@/components/animes/DiscoverAnimes";
 import {
   PopularMediaResponse,
   TopRatedMediaResponse,
@@ -8,6 +7,7 @@ import {
 } from "@/types/tmdb";
 import { Media, Genre } from "@/types/tmdb";
 import MediaContainer from "@/components/medias/MediaContainer";
+import { DiscoverMedia } from "@/components/medias/DiscoverMedia";
 
 // ------ FONCTION POUR RÉCUPÉRER LES ANIMES POPULAIRES ------ \\
 
@@ -144,7 +144,13 @@ export default async function AnimesPage() {
       </EmblaCarousel>
 
       {/* DÉCOUVRIR DES ANIMES */}
-      <DiscoverAnimes initialAnimes={discoverAnimes} genres={animeGenres} />
+      <DiscoverMedia
+        title="Découvrir des animes"
+        emptyMessage="Aucun anime ne correspond à vos critères."
+        fetchEndpoint="/api/animes/discoverAnimes"
+        initialData={discoverAnimes}
+        genres={animeGenres}
+      />
     </MediaContainer>
   );
 }
