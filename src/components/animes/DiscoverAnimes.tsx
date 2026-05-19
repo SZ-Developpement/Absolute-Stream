@@ -1,7 +1,6 @@
 "use client"; // Indique que ce composant doit être rendu côté client, nécessaire pour utiliser les hooks d'état et d'effet de React.
 
 import { useState, useEffect, useTransition, useRef } from "react"; // Hooks React pour gérer l'état, les effets de bord, les transitions d'état et les références
-import { cn } from "@/lib/utils"; // Assuming you have a cn utility for tailwind-merge
 import { Media, Genre } from "@/types/tmdb";
 import MediaCards from "@/components/medias/MediaCards";
 import { ArrowDownUp, ListFilter } from "lucide-react";
@@ -59,11 +58,15 @@ export function DiscoverAnimes({
   }, [selectedGenre, sortBy]);
 
   return (
-    <div className={cn("flex flex-col gap-4 w-full")}>
-      {/* Filter Header */}
-      <div className="flex flex-row items-center justify-between w-full">
-        <h2 className="title-category">Découvrir des animes</h2>
+    <div className="pb-6 lg:pb-14 flex flex-col gap-6 w-full">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+        {/* Titre */}
+        <h3 className="text-lg xl:text-xl  font-semibold capitalize ">
+          Découvrir des animes
+        </h3>
+
         <div className="flex flex-row gap-2 items-center ">
+          {/* Button de filtre */}
           <button
             onClick={() => {
               setIsGenreOpen((open) => !open);
@@ -74,138 +77,29 @@ export function DiscoverAnimes({
             Filtrez par Genre
           </button>
 
-          {isGenreOpen && (
-            <ul
-              className="absolute mb-75 right-45 w-48 max-h-64 overflow-y-auto rounded-lg bg-background border border-foreground/20
-  z-10"
-            >
-              <li>
-                <button
-                  onClick={() => {
-                    setSelectedGenre("");
-                    setIsGenreOpen(false);
-                  }}
-                  className="w-full px-3 py-2 hover:bg-foreground/10"
-                >
-                  Tous
-                </button>
-              </li>
-              {genres.map((genre) => (
-                <li key={genre.id}>
-                  <button
-                    onClick={() => {
-                      setSelectedGenre(genre.id.toString());
-                      setIsGenreOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 hover:bg-foreground/10"
-                  >
-                    {genre.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div className="flex flex-row gap-2 items-center ">
-            <button
-              onClick={() => {
-                setIsSortOpen((open) => !open);
-              }}
-              className="w-full whitespace-nowrap py-2 px-4 flex flex-row justify-center items-center gap-2 text-sm text-center rounded-lg text-white hover:text-gray-300 bg-background/70 hover:bg-background/60 cursor-pointer"
-            >
-              <ArrowDownUp size={14} />
-              Triez
-            </button>
-
-            {isSortOpen && (
-              <ul
-                className="absolute mb-75 right-45 w-48 max-h-64 overflow-y-auto rounded-lg bg-background border border-foreground/20
-  z-10"
-              >
-                <li>
-                  <button
-                    onClick={() => {
-                      setSortBy("popularity.desc");
-                      setIsSortOpen(false);
-                    }}
-                    className="w-full px-3 py-2 hover:bg-foreground/10"
-                  >
-                    Popularité Décroissante
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setSortBy("popularity.asc");
-                      setIsSortOpen(false);
-                    }}
-                    className="w-full px-3 py-2 hover:bg-foreground/10"
-                  >
-                    Popularité Croissante
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setSortBy("vote_average.desc");
-                      setIsSortOpen(false);
-                    }}
-                    className="w-full px-3 py-2 hover:bg-foreground/10"
-                  >
-                    Note Décroissante
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setSortBy("vote_average.asc");
-                      setIsSortOpen(false);
-                    }}
-                    className="w-full px-3 py-2 hover:bg-foreground/10"
-                  >
-                    Note Croissante
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setSortBy("primary_release_date.desc");
-                      setIsSortOpen(false);
-                    }}
-                    className="w-full px-3 py-2 hover:bg-foreground/10"
-                  >
-                    Plus Récents
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setSortBy("primary_release_date.asc");
-                      setIsSortOpen(false);
-                    }}
-                    className="w-full px-3 py-2 hover:bg-foreground/10"
-                  >
-                    Plus Anciens
-                  </button>
-                </li>
-              </ul>
-            )}
-          </div>
+          {/* Menu de sélection de genre */}
+          <button
+            onClick={() => {
+              setIsSortOpen((open) => !open);
+            }}
+            className="w-full whitespace-nowrap py-2 px-4 flex flex-row justify-center items-center gap-2 text-sm text-center rounded-lg text-white hover:text-gray-300 bg-background/70 hover:bg-background/60 cursor-pointer"
+          >
+            <ArrowDownUp size={14} />
+            Triez
+          </button>
         </div>
       </div>
 
-      <div
-        className={`justify-items-center grid grid-cols-2 xl:grid-cols-6 2xl:grid-cols-8 gap-4 transition-opacity ${
-          isPending ? "opacity-50" : "opacity-100"
-        }`}
-      >
-        {animes.length > 0 ? <MediaCards mediaList={animes} /> : null}
+      {/* Liste des animes */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-6">
+        {animes.length > 0
+          ? animes.map((anime) => <MediaCards key={anime.id} media={anime} />)
+          : !isPending && (
+              <p className="col-span-full py-8 text-center text-gray-500">
+                Aucun anime ne correspond à vos critères.
+              </p>
+            )}
       </div>
-      {animes.length === 0 && !isPending && (
-        <p className="text-center py-8">
-          Aucun anime ne correspond à vos critères.
-        </p>
-      )}
     </div>
   );
 }
