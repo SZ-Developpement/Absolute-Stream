@@ -1,6 +1,6 @@
 # Absolute Stream
 
-> Le réseau social des amoureux de pop-culture. Centralisez vos visionnages de films, séries et animés, partagez vos critiques avec vos amis, poussez vos oeuvres favoris au sommet lors des Tournois et résolvez le "qu'est-ce qu'on regarde ce soir ?" grâce à un système de Match en temps réel inspiré de Tinder.
+> Notez. Critiquez. Matchez en duo. Triomphez en Tournoi. Absolute Stream est la plateforme communautaire qui transforme votre passion pour les films, séries et animés en expérience partagée.
 
 ![Status](https://img.shields.io/badge/status-en%20développement-yellow)
 ![Next.js](https://img.shields.io/badge/Next.js-16.2-black?logo=next.js)
