@@ -18,6 +18,7 @@ export default function MediasCard({ media }: { media: Media }) {
           }
           alt={media.title ?? media.name ?? "Poster"}
           fill
+          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, (max-width: 1536px) 16vw, 12.5vw"
           className="absolute object-cover ls-is-cached lazyloaded"
         />
 
