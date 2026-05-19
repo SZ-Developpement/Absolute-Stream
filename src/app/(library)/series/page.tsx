@@ -1,6 +1,6 @@
-import { EmblaCarousel } from "@/components/library/EmblaCarousel";
-import MediaCards from "@/components/library/MediaCards";
-import { DiscoverTvshows } from "@/components/library/DiscoverTvshows";
+import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
+import MediaCards from "@/components/medias/MediaCards";
+import { DiscoverTvshows } from "@/components/series/DiscoverTvshows";
 import {
   PopularMediaResponse,
   TopRatedMediaResponse,

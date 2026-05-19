@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import CardCollection from "@/components/collection/CardCollection";
+import CardCollection from "@/components/collections/CardCollection";
 import type { TMDBCollection } from "@/lib/tmdb";
 
 export default function CollectionsPage() {

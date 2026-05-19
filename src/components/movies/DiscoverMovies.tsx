@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition, useRef } from "react";
 import { cn } from "@/lib/utils"; // Assuming you have a cn utility for tailwind-merge
 import { Media, Genre } from "@/types/tmdb";
-import MediaCards from "@/components/library/MediaCards";
+import MediaCards from "@/components/medias/MediaCards";
 import { ArrowDownUp, ListFilter } from "lucide-react";
 
 export function DiscoverMovies({

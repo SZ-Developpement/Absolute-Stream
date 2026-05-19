@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition, useRef } from "react"; // Hooks React pour gérer l'état, les effets de bord, les transitions d'état et les références
 import { cn } from "@/lib/utils"; // Assuming you have a cn utility for tailwind-merge
 import { Media, Genre } from "@/types/tmdb";
-import MediaCards from "@/components/library/MediaCards";
+import MediaCards from "@/components/medias/MediaCards";
 import { ArrowDownUp, ListFilter } from "lucide-react";
 
 export function DiscoverTvshows({

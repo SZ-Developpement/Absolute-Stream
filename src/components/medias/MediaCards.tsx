@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Media } from "@/types/tmdb";
 import { Play } from "lucide-react";
-import BadgeReco from "../Absolute/BadgeReco";
+import BadgeReco from "./BadgeReco";
 
 // On reçoit une liste de médias en props, typée avec le type Media défini dans types/tmdb.ts
 // La destruc
