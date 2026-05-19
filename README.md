@@ -198,48 +198,70 @@ L'app sera disponible sur `http://localhost:3000`
 ```
 absolute-stream/
 ├── src/
-│   ├── app/                         # App Router Next.js
-│   │   ├── layout.tsx               # Layout global (dark mode)
-│   │   ├── page.tsx                 # Landing
-│   │   ├── (auth)/                  # Pages authentification
+│   ├── app/                             # App Router Next.js
+│   │   ├── layout.tsx                   # Layout global (dark mode)
+│   │   ├── page.tsx                     # Landing
+│   │   ├── globals.css                  # Styles globaux Tailwind
+│   │   ├── (auth)/                      # Route group — authentification
 │   │   │   ├── login/
 │   │   │   └── register/
-│   │   ├── [type]/[id]/             # Fiche unifiée movie/tv/anime
-│   │   ├── movies/                  # Catalogue films
-│   │   ├── series/                  # Catalogue séries
-│   │   ├── animes/                  # Catalogue animés
-│   │   ├── collections/             # Collections TMDB
-│   │   ├── top10/                   # Top communautaire
-│   │   ├── tournoi/                 # Tournoi communautaire
-│   │   ├── match/                   # Système de Match
-│   │   │   └── [sessionId]/         # Session de swipe en cours
-│   │   └── api/                     # Route Handlers
-│   │       ├── auth/[...all]/       # Better Auth
-│   │       ├── movies/              # discoverMovies, popularMovies, topRated, nowPlaying, movieGenres
-│   │       ├── tvshows/             # discoverTvshows, popularTv, topRated, onTheAir, tvGenres
-│   │       ├── animes/              # discoverAnimes, popularAnimes, topRated, animeGenres
-│   │       ├── collections/         # Collections TMDB
+│   │   ├── (library)/                   # Route group — catalogue
+│   │   │   ├── movies/                  # Catalogue films
+│   │   │   ├── series/                  # Catalogue séries
+│   │   │   ├── animes/                  # Catalogue animés
+│   │   │   ├── collections/             # Collections TMDB
+│   │   │   └── top10/                   # Top communautaire
+│   │   ├── (games)/                     # Route group — modes ludiques
+│   │   │   ├── match/                   # Système de Match
+│   │   │   │   └── [sessionId]/         # Session de swipe en cours
+│   │   │   └── tournoi/                 # Tournoi communautaire
+│   │   ├── (user)/                      # Route group — espace membre
+│   │   │   ├── profile/                 # Profil utilisateur
+│   │   │   └── settings/                # Paramètres du compte
+│   │   ├── [type]/[id]/                 # Fiche unifiée movie/tv/anime
+│   │   └── api/                         # Route Handlers
+│   │       ├── auth/[...all]/           # Better Auth
+│   │       ├── movies/                  # discoverMovies, popularMovies, topRated, nowPlaying, movieGenres
+│   │       ├── tvshows/                 # discoverTvshows, popularTv, topRated, onTheAir, tvGenres
+│   │       ├── animes/                  # discoverAnimes, popularAnimes, topRated, animeGenres
+│   │       ├── collections/             # Collections TMDB
 │   │       └── findByID/[external_id]/  # Lookup par ID externe
 │   │
-│   ├── components/                  # Composants React
-│   │   ├── ui/                      # dropdown-menu, slider, label, radio-group
-│   │   ├── layout/                  # NavBar, Footer, PageBackground
-│   │   ├── library/                 # DiscoverMovies, DiscoverTvshows, DiscoverAnimes, EmblaCarousel, MediaCards
-│   │   ├── collection/              # CardCollection
-│   │   ├── ActionMedia/             # FavoriteButton
-│   │   └── Absolute/                # BadgeReco
+│   ├── components/                      # Composants React
+│   │   ├── ui/                          # MyInput, dropdown-menu, label, radio-group, slider
+│   │   ├── layout/                      # NavBar, Footer, PageBackground
+│   │   ├── medias/                      # BadgeReco, DiscoverMedia, EmblaCarousel, FavoriteButton, LibraryContainer, MediaCards, MediaContainer
+│   │   └── collections/                 # CardCollection
 │   │
-│   ├── context/                     # Providers React
-│   │   └── AuthContext.tsx          # Etat d'authentification cote client
+│   ├── actions/                         # Server Actions
+│   │   └── favorites.ts                 # Mutations favoris (ajout / suppression)
 │   │
-│   └── lib/                         # Utilitaires
-│       ├── auth.ts                  # Configuration Better Auth
-│       ├── prisma.ts                # Client Prisma singleton
-│       ├── tmdb.ts                  # Client TMDB API
-│       └── utils.ts                 # Helpers (cn, etc.)
+│   ├── providers/                       # Providers React
+│   │   └── AuthContext.tsx              # Etat d'authentification cote client
+│   │
+│   ├── hooks/                           # Hooks React custom
+│   │   ├── useAuth.ts                   # Acces a la session Better Auth
+│   │   ├── useImageColor.ts             # Extraction de couleur dominante d'une image
+│   │   └── usePageBackground.ts         # Gestion du background dynamique par page
+│   │
+│   ├── constants/                       # Constantes / config UI
+│   │   ├── home-page.ts                 # Contenu de la landing
+│   │   ├── medias.tsx                   # Constantes liées aux médias (catégories, options)
+│   │   ├── nav-bar.ts                   # Liens et structure de la NavBar
+│   │   └── page-design.ts               # Configuration visuelle par page
+│   │
+│   ├── types/                           # Types TypeScript partagés
+│   │   ├── medias.ts                    # Types métiers médias
+│   │   └── tmdb.ts                      # Types pour l'API TMDB
+│   │
+│   └── lib/                             # Utilitaires
+│       ├── auth.ts                      # Configuration Better Auth
+│       ├── prisma.ts                    # Client Prisma singleton
+│       ├── tmdb.ts                      # Client TMDB API
+│       └── utils.ts                     # Helpers (cn, etc.)
 │
 ├── prisma/
-│   └── schema.prisma                # Schema BDD
+│   └── schema.prisma                    # Schema BDD
 ├── public/
 ├── next.config.ts
 ├── postcss.config.mjs
