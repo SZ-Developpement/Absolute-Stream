@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function MediasCard({ media }: { media: Media }) {
   return (
-    <div className="relative group overflow-hidden rounded-md">
+    <div className="relative group overflow-hidden rounded-md aspect-2/3">
       <Link
         href={`/movies/${media.id}`}
         className="aspect-2/3 relative transition overflow-hidden cursor-pointer before:absolute before:-inset-px before:bg-linear-to-t before:from-black/80 before:to-black/20 before:-m-px before:z-1 before:opacity-0 group-hover:before:opacity-100 block"
