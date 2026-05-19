@@ -2,28 +2,28 @@ import { Users, Check, X, Search, Star, LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-// const stepsMatch = [
-//   {
-//     step: "01",
-//     title: "Lancez un duo",
-//     desc: "Créez une session en un clic et partagez le lien d'invitation unique.",
-//   },
-//   {
-//     step: "02",
-//     title: "Swipez à deux",
-//     desc: "À droite si ça vous tente, à gauche si vous passez votre tour.",
-//   },
-//   {
-//     step: "03",
-//     title: "Notification live",
-//     desc: "Notre système synchronise vos choix instantanément en arrière-plan.",
-//   },
-//   {
-//     step: "04",
-//     title: "C'est un Match !",
-//     desc: "Alerte immédiate dès qu'un coup de cœur commun est trouvé.",
-//   },
-// ];
+const stepsMatch = [
+  {
+    step: "01",
+    title: "Lancez un duo",
+    desc: "Créez une session en un clic et partagez le lien d'invitation unique.",
+  },
+  {
+    step: "02",
+    title: "Swipez à deux",
+    desc: "À droite si ça vous tente, à gauche si vous passez votre tour.",
+  },
+  {
+    step: "03",
+    title: "Notification live",
+    desc: "Notre système synchronise vos choix instantanément en arrière-plan.",
+  },
+  {
+    step: "04",
+    title: "C'est un Match !",
+    desc: "Alerte immédiate dès qu'un coup de cœur commun est trouvé.",
+  },
+];
 
 const features = [
   {
@@ -73,7 +73,13 @@ const featuresTable = [
     member: true,
   },
   {
-    name: "Système de Match en temps réel ⚡",
+    name: "Système de Match en temps réel",
+    visitor: false,
+    member: true,
+    highlight: true,
+  },
+  {
+    name: "Tournoi de la communauté",
     visitor: false,
     member: true,
     highlight: true,
@@ -85,16 +91,13 @@ export default function Home() {
     <div className="min-h-screen bg-background/30 text-zinc-50">
       <section className="relative h-screen flex flex-col gap-6 items-center justify-center text-center px-4">
         {/* Titre principal */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col mb-6 gap-4">
           <h1 className="text-5xl font-black">
             Bienvenue sur{" "}
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-cyan-500 to-blue-500">
+            <span className="whitespace-nowrap text-transparent bg-clip-text bg-blue-500">
               Absolute Stream
             </span>
           </h1>
-          <p className="text-xl text-zinc-400">
-            Le réseau social ciné & séries. Swipez. Matchez. Regardez.
-          </p>
         </div>
 
         {/* Boutons d'action */}
@@ -107,7 +110,7 @@ export default function Home() {
           </Link>
           <Link
             href="/register"
-            className="h-11 px-6 rounded-lg flex flex-row items-center justify-center bg-black text-white font-medium hover:bg-black/90 hover:text-zinc-50 transition-all cursor-pointer"
+            className="h-11 px-6 rounded-lg flex flex-row items-center justify-center bg-zinc-50 text-zinc-950 font-medium hover:bg-zinc-200 transition-colors shadow-lg cursor-pointer"
           >
             Créer un compte gratuit
           </Link>
@@ -115,8 +118,8 @@ export default function Home() {
       </section>
 
       {/* Container Principal */}
-      <main className=" bg-background">
-        <div className="max-w-360 mx-auto px-6 py-24 flex flex-col gap-32">
+      <main>
+        <div className="max-w-360 mx-auto px-6 py-24 flex flex-col gap-42">
           {/* À PROPOS */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
             <div className="flex flex-col gap-4">
@@ -143,20 +146,18 @@ export default function Home() {
           </section>
 
           {/* FEATURE : LE MATCH */}
-          {/* <section className="flex flex-col gap-10 relative overflow-hidden">
+          <section className="flex flex-col gap-10 relative overflow-hidden">
             <div className="flex flex-col gap-2 max-w-xl">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-cyan-400 border border-blue-500/20 w-fit">
-                Fonctionnalité phare
-              </div>
               <h2 className="text-3xl font-bold tracking-tight">
                 Mode Match : Swipez. Matchez. Regardez.
               </h2>
               <p className="text-zinc-400">
-                Trouver un film en duo n'a jamais été aussi simple (et fun).
-                Plus besoin de débattre pendant des heures devant l'écran.
+                Trouver un film en duo n&apos;a jamais été aussi simple (et
+                fun). Plus besoin de débattre pendant des heures devant
+                l&apos;écran.
               </p>
             </div>
-            Grille des étapes du Match
+            {/* Grille des étapes du Match */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
               {stepsMatch.map((item, idx) => (
                 <div
@@ -173,7 +174,7 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </section> */}
+          </section>
 
           {/* 4. LES AUTRES FONCTIONNALITÉS (Bento Grid / Cartes) */}
           <section className="flex flex-col gap-8">

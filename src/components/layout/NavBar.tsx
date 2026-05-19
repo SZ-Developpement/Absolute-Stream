@@ -27,7 +27,7 @@ function NavBar() {
           {/* Logo Lien Accueil */}
           <Link
             href="/"
-            className="text-lg sm:text-xl font-bold whitespace-nowrap"
+            className="text-lg sm:text-xl font-bold whitespace-nowrap text-transparent bg-clip-text bg-blue-500"
           >
             Absolute Stream
           </Link>
