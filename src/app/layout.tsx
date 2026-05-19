@@ -4,7 +4,7 @@ import "./globals.css";
 import { NavBar } from "@/components/layout/NavBar";
 import { Footer } from "@/components/layout/Footer";
 import { PageBackground } from "@/components/layout/PageBackground";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider } from "@/providers/AuthContext";
 
 export const metadata: Metadata = {
   title: "Absolute Stream",

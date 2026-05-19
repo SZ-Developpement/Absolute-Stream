@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { navItems } from "@/data/navBar";
+import { navItems } from "@/constants/nav-bar";
 import { LucideIcon, Search, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

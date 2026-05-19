@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { navItems } from "@/data/navBar";
+import { navItems } from "@/constants/nav-bar";
 
 // Filtrage des liens pour les différentes sections du footer
 const catalogueLinks = navItems.filter((item) =>

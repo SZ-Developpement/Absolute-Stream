@@ -11,7 +11,6 @@ export function PageBackground() {
     if (main) {
       document.documentElement.style.setProperty("--page-main", main);
       document.documentElement.style.setProperty("--page-text", text);
-      console.log("Nouvelle couleur appliquée :", main);
     }
   }, [main, text]);
 
