@@ -128,7 +128,9 @@ export default async function AnimesPage() {
         title="Tendances du moment"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={popularAnimes} />
+        {popularAnimes.map((anime) => (
+          <MediaCards key={anime.id} media={anime} />
+        ))}
       </EmblaCarousel>
 
       {/* LES MIEUX NOTÉS */}
@@ -136,7 +138,9 @@ export default async function AnimesPage() {
         title="Les mieux notés"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={topRatedAnimes} />
+        {topRatedAnimes.map((anime) => (
+          <MediaCards key={anime.id} media={anime} />
+        ))}
       </EmblaCarousel>
 
       {/* DÉCOUVRIR DES ANIMES */}

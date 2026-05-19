@@ -1,4 +1,5 @@
 import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
+import LibraryContainer from "@/components/medias/LibraryContainer";
 import MediaCards from "@/components/medias/MediaCards";
 import MediaContainer from "@/components/medias/MediaContainer";
 import { DiscoverMovies } from "@/components/movies/DiscoverMovies";
@@ -151,7 +152,9 @@ export default async function MoviesPage() {
         title="Tendances du moment"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={popularMovies} />
+        {popularMovies.map((movie) => (
+          <MediaCards key={movie.id} media={movie} />
+        ))}
       </EmblaCarousel>
 
       {/* LES MIEUX NOTÉS */}
@@ -159,7 +162,9 @@ export default async function MoviesPage() {
         title="Les mieux notés"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={topRatedMovies} />
+        {topRatedMovies.map((movie) => (
+          <MediaCards key={movie.id} media={movie} />
+        ))}
       </EmblaCarousel>
 
       {/* DÉCOUVRIR DES FILMS */}

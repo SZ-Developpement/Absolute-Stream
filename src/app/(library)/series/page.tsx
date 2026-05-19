@@ -133,7 +133,9 @@ export default async function SeriesPage() {
         title="Tendances du moment"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={popularSeries} />
+        {popularSeries.map((serie) => (
+          <MediaCards key={serie.id} media={serie} />
+        ))}
       </EmblaCarousel>
 
       {/* LES MIEUX NOTÉS */}
@@ -141,7 +143,9 @@ export default async function SeriesPage() {
         title="Les mieux notés"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={topRatedSeries} />
+        {topRatedSeries.map((serie) => (
+          <MediaCards key={serie.id} media={serie} />
+        ))}
       </EmblaCarousel>
 
       {/* DÉCOUVRIR DES SÉRIES */}
