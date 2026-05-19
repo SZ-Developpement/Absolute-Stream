@@ -1,6 +1,7 @@
-import { EmblaCarousel } from "@/components/library/EmblaCarousel";
-import MediaCards from "@/components/library/MediaCards";
-import { DiscoverTvshows } from "@/components/library/DiscoverTvshows";
+import { DiscoverMedia } from "@/components/medias/DiscoverMedia";
+import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
+import MediaCards from "@/components/medias/MediaCards";
+import MediaContainer from "@/components/medias/MediaContainer";
 import {
   PopularMediaResponse,
   TopRatedMediaResponse,
@@ -124,7 +125,7 @@ export default async function SeriesPage() {
   const seriesGenres = await getSeriesGenres();
 
   return (
-    <div className="container-page">
+    <MediaContainer>
       <div className="w-full h-120" />
 
       {/* TENDANCES DU MOMENT */}
@@ -132,7 +133,9 @@ export default async function SeriesPage() {
         title="Tendances du moment"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={popularSeries} />
+        {popularSeries.map((serie) => (
+          <MediaCards key={serie.id} media={serie} />
+        ))}
       </EmblaCarousel>
 
       {/* LES MIEUX NOTÉS */}
@@ -140,11 +143,19 @@ export default async function SeriesPage() {
         title="Les mieux notés"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={topRatedSeries} />
+        {topRatedSeries.map((serie) => (
+          <MediaCards key={serie.id} media={serie} />
+        ))}
       </EmblaCarousel>
 
       {/* DÉCOUVRIR DES SÉRIES */}
-      <DiscoverTvshows initialSeries={discoverSeries} genres={seriesGenres} />
-    </div>
+      <DiscoverMedia
+        title="Découvrir des séries"
+        emptyMessage="Aucune série ne correspond à vos critères."
+        fetchEndpoint="/api/series/discoverTvshows"
+        initialData={discoverSeries}
+        genres={seriesGenres}
+      />
+    </MediaContainer>
   );
 }

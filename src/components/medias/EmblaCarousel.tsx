@@ -31,7 +31,7 @@ export function EmblaCarousel({
   );
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative overflow-hidden", className)}>
       <div className="flex flex-col gap-4 w-full">
         <div className="flex flex-row items-center justify-between">
           <h1 className="title-category">{title}</h1>
@@ -54,8 +54,26 @@ export function EmblaCarousel({
           </div>
         </div>
 
-        <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-4">{children}</div>
+        {/* Le Viewport */}
+        <div className="overflow-hidden -mx-3" ref={emblaRef}>
+          {/* Le Container */}
+          <div className="flex select-none">
+            {React.Children.map(children, (child) => (
+              <div
+                className={
+                  "min-w-0 px-3 shrink-0 " +
+                  "basis-1/2 " + // grid-cols-2 (50%)
+                  "sm:basis-1/3 " + // sm:grid-cols-3 (33.33%)
+                  "md:basis-1/4 " + // md:grid-cols-4 (25%)
+                  "lg:basis-1/5 " + // lg:grid-cols-5 (20%)
+                  "xl:basis-1/6 " + // xl:grid-cols-6 (16.66%)
+                  "2xl:basis-1/8" // 2xl:grid-cols-8 (12.5%)
+                }
+              >
+                {child}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { usePathname } from "next/navigation";
-import { pageDesign } from "@/data/pageDesign";
+import { pageDesign } from "@/constants/page-design";
 
 export function usePageBackground() {
   const pathname = usePathname();

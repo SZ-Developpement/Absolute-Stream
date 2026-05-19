@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { MediaType } from "@prisma/client";
-import FavoriteButton from "@/components/ActionMedia/FavoriteButton";
+import FavoriteButton from "@/components/medias/FavoriteButton";
 
 interface Genre {
   id: number;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { navItems } from "@/data/navBar";
+import { navItems } from "@/constants/nav-bar";
 import { LucideIcon, Search, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,7 +20,7 @@ function NavBar() {
 
   return (
     // Conteneur principal de la barre de navigation avec styles pour le positionnement et l'apparence
-    <div className="fixed top-0 left-0 w-full z-50 bg-background/70 backdrop-blur-xl border-b border-foreground/5">
+    <header className="sticky top-0 left-0 w-full z-50 bg-background/70 backdrop-blur-xl border-b border-foreground/5">
       {/* Menu Desktop — visible uniquement au dessus de xl */}
       <div className="py-3 px-4 2xl:px-10 flex flex-row items-center justify-between">
         <div className="flex flex-row items-center gap-4">
@@ -95,7 +95,7 @@ function NavBar() {
           )}
         </div>
       )}
-    </div>
+    </header>
   );
 }
 

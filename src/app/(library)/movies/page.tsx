@@ -1,6 +1,7 @@
-import { EmblaCarousel } from "@/components/library/EmblaCarousel";
-import MediaCards from "@/components/library/MediaCards";
-import { DiscoverMovies } from "@/components/library/DiscoverMovies";
+import { DiscoverMedia } from "@/components/medias/DiscoverMedia";
+import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
+import MediaCards from "@/components/medias/MediaCards";
+import MediaContainer from "@/components/medias/MediaContainer";
 import {
   PopularMediaResponse,
   TopRatedMediaResponse,
@@ -142,7 +143,7 @@ export default async function MoviesPage() {
   const movieGenres = await getMovieGenres();
 
   return (
-    <div className="container-page">
+    <MediaContainer>
       <div className="w-full h-120" />
 
       {/* TENDANCES DU MOMENT */}
@@ -150,7 +151,9 @@ export default async function MoviesPage() {
         title="Tendances du moment"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={popularMovies} />
+        {popularMovies.map((movie) => (
+          <MediaCards key={movie.id} media={movie} />
+        ))}
       </EmblaCarousel>
 
       {/* LES MIEUX NOTÉS */}
@@ -158,11 +161,19 @@ export default async function MoviesPage() {
         title="Les mieux notés"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={topRatedMovies} />
+        {topRatedMovies.map((movie) => (
+          <MediaCards key={movie.id} media={movie} />
+        ))}
       </EmblaCarousel>
 
       {/* DÉCOUVRIR DES FILMS */}
-      <DiscoverMovies initialMovies={discoverMovies} genres={movieGenres} />
-    </div>
+      <DiscoverMedia
+        title="Découvrir des films"
+        emptyMessage="Aucun film ne correspond à vos critères."
+        fetchEndpoint="/api/movies/discoverMovies"
+        initialData={discoverMovies}
+        genres={movieGenres}
+      />
+    </MediaContainer>
   );
 }

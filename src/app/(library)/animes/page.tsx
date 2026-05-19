@@ -1,12 +1,13 @@
-import { EmblaCarousel } from "@/components/library/EmblaCarousel";
-import MediaCards from "@/components/library/MediaCards";
-import { DiscoverAnimes } from "@/components/library/DiscoverAnimes";
+import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
+import MediaCards from "@/components/medias/MediaCards";
 import {
   PopularMediaResponse,
   TopRatedMediaResponse,
   DiscoverMediaResponse,
 } from "@/types/tmdb";
 import { Media, Genre } from "@/types/tmdb";
+import MediaContainer from "@/components/medias/MediaContainer";
+import { DiscoverMedia } from "@/components/medias/DiscoverMedia";
 
 // ------ FONCTION POUR RÉCUPÉRER LES ANIMES POPULAIRES ------ \\
 
@@ -119,7 +120,7 @@ export default async function AnimesPage() {
   const animeGenres = await getAnimeGenres();
 
   return (
-    <div className="container-page">
+    <MediaContainer>
       <div className="w-full h-120" />
 
       {/* TENDANCES DU MOMENT */}
@@ -127,7 +128,9 @@ export default async function AnimesPage() {
         title="Tendances du moment"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={popularAnimes} />
+        {popularAnimes.map((anime) => (
+          <MediaCards key={anime.id} media={anime} />
+        ))}
       </EmblaCarousel>
 
       {/* LES MIEUX NOTÉS */}
@@ -135,11 +138,19 @@ export default async function AnimesPage() {
         title="Les mieux notés"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
-        <MediaCards mediaList={topRatedAnimes} />
+        {topRatedAnimes.map((anime) => (
+          <MediaCards key={anime.id} media={anime} />
+        ))}
       </EmblaCarousel>
 
       {/* DÉCOUVRIR DES ANIMES */}
-      <DiscoverAnimes initialAnimes={discoverAnimes} genres={animeGenres} />
-    </div>
+      <DiscoverMedia
+        title="Découvrir des animes"
+        emptyMessage="Aucun anime ne correspond à vos critères."
+        fetchEndpoint="/api/animes/discoverAnimes"
+        initialData={discoverAnimes}
+        genres={animeGenres}
+      />
+    </MediaContainer>
   );
 }
