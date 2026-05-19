@@ -77,7 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(u);
       localStorage.setItem("auth_user", JSON.stringify(u));
     } else {
-      setError(res?.error?.message ?? "Erreur de connexion");
+      const message = res?.error?.message ?? "Erreur de connexion";
+      setError(message);
+      throw new Error(message);
     }
     return res;
   };
@@ -91,11 +93,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (res?.data?.user) {
       const u = res.data.user as User;
       setUser(u);
-      localStorage.setItem("auth_user", JSON.stringify(u)); // sauvegarde
+      localStorage.setItem("auth_user", JSON.stringify(u));
     } else {
-      setError(res?.error?.message ?? "Erreur d'inscription");
+      const message = res?.error?.message ?? "Erreur d'inscription";
+      setError(message);
+      throw new Error(message);
     }
-
     return res;
   };
 
