@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import CardCollection from "@/components/collections/CardCollection";
 import type { TMDBCollection } from "@/lib/tmdb";
+import MediaContainer from "@/components/medias/MediaContainer";
 
 export default function CollectionsPage() {
   const [collections, setCollections] = useState<TMDBCollection[]>([]);
@@ -32,7 +33,7 @@ export default function CollectionsPage() {
   };
 
   return (
-    <div className="container-page grid">
+    <MediaContainer>
       <div className="flex flex-col items-center justify-center gap-1 mt-6">
         <h1 className="text-4xl font-bold">Collections</h1>
         <p className="text-base text-gray-400">
@@ -74,6 +75,6 @@ export default function CollectionsPage() {
           {loading ? "Chargement..." : "Afficher plus"}
         </button>
       </div>
-    </div>
+    </MediaContainer>
   );
 }

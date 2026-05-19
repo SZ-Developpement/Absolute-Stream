@@ -7,6 +7,7 @@ import {
   DiscoverMediaResponse,
 } from "@/types/tmdb";
 import { Media, Genre } from "@/types/tmdb";
+import MediaContainer from "@/components/medias/MediaContainer";
 
 // ------ FONCTION POUR RÉCUPÉRER LES ANIMES POPULAIRES ------ \\
 
@@ -119,7 +120,7 @@ export default async function AnimesPage() {
   const animeGenres = await getAnimeGenres();
 
   return (
-    <div className="container-page">
+    <MediaContainer>
       <div className="w-full h-120" />
 
       {/* TENDANCES DU MOMENT */}
@@ -140,6 +141,6 @@ export default async function AnimesPage() {
 
       {/* DÉCOUVRIR DES ANIMES */}
       <DiscoverAnimes initialAnimes={discoverAnimes} genres={animeGenres} />
-    </div>
+    </MediaContainer>
   );
 }

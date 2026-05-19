@@ -1,5 +1,6 @@
 import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
 import MediaCards from "@/components/medias/MediaCards";
+import MediaContainer from "@/components/medias/MediaContainer";
 import { DiscoverTvshows } from "@/components/series/DiscoverTvshows";
 import {
   PopularMediaResponse,
@@ -124,7 +125,7 @@ export default async function SeriesPage() {
   const seriesGenres = await getSeriesGenres();
 
   return (
-    <div className="container-page">
+    <MediaContainer>
       <div className="w-full h-120" />
 
       {/* TENDANCES DU MOMENT */}
@@ -145,6 +146,6 @@ export default async function SeriesPage() {
 
       {/* DÉCOUVRIR DES SÉRIES */}
       <DiscoverTvshows initialSeries={discoverSeries} genres={seriesGenres} />
-    </div>
+    </MediaContainer>
   );
 }

@@ -8,6 +8,8 @@
 }
 
 @theme inline {
+  --breakpoint-3xl: 1930px;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -21,17 +23,31 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-.container-page {
-  max-width: 1536px;
+.custom-container {
   width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 60px;
-  padding-right: 24px;
-  padding-left: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+
+  max-width: 100%;
+
+  @media (width >= theme(--breakpoint-sm)) {
+    max-width: theme(--breakpoint-sm);
+  }
+  @media (width >= theme(--breakpoint-md)) {
+    max-width: theme(--breakpoint-md);
+  }
+  @media (width >= theme(--breakpoint-lg)) {
+    max-width: theme(--breakpoint-lg);
+  }
+  @media (width >= theme(--breakpoint-xl)) {
+    max-width: theme(--breakpoint-xl);
+  }
+  @media (width >= theme(--breakpoint-2xl)) {
+    max-width: theme(--breakpoint-2xl);
+  }
+  @media (width >= theme(--breakpoint-3xl)) {
+    max-width: theme(--breakpoint-3xl);
+  }
 }
 
 .title-category {
