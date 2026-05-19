@@ -1,61 +1,41 @@
-"use client"; // Indique que c'est un Client Component
-import Image from "next/image";
-import Link from "next/link";
 import { Media } from "@/types/tmdb";
 import { Play } from "lucide-react";
-import BadgeReco from "./BadgeReco";
+import Image from "next/image";
+import Link from "next/link";
 
-// On reçoit une liste de médias en props, typée avec le type Media défini dans types/tmdb.ts
-// La destruc
-export default function MediaCards({ mediaList }: { mediaList: Media[] }) {
+export default function MediasCard({ media }: { media: Media }) {
   return (
-    <>
-      {/* On mappe sur la liste de médias pour créer une carte pour chaque média 
-        map = fonction de tableau qui itère sur chaque élément du tableau mediaList
-        et retourne un nouveau tableau de JSX */}
-      {mediaList.map((Media) => (
-        <Link
-          key={Media.id}
-          href={`/movies/${Media.id}`}
-          className="group relative block aspect-2/3 w-43 shrink-0 overflow-hidden rounded-md bg-zinc-900"
-        >
-          <Image
-            src={
-              Media.poster_path
-                ? `https://image.tmdb.org/t/p/w500${Media.poster_path}`
-                : "/path/to/default-poster.jpg"
-            }
-            alt={Media.title ?? Media.name ?? "Poster"}
-            fill
-            loading="eager"
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+    <div className="relative group overflow-hidden rounded-md">
+      <Link
+        href={`/movies/${media.id}`}
+        className="aspect-2/3 relative transition overflow-hidden cursor-pointer before:absolute before:-inset-px before:bg-linear-to-t before:from-black/80 before:to-black/20 before:-m-px before:z-1 before:opacity-0 group-hover:before:opacity-100 block"
+      >
+        <Image
+          src={
+            media.poster_path
+              ? `https://image.tmdb.org/t/p/w500${media.poster_path}`
+              : "/No-Image/no-image.png"
+          }
+          alt={media.title ?? media.name ?? "Poster"}
+          fill
+          className="absolute object-cover ls-is-cached lazyloaded"
+        />
 
-          {/* Overlay : Utilise inset-0 pour couvrir tout l'espace */}
-          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="hidden group-hover:flex absolute left-1/2 top-1/2 -translate-x-1/2 z-20 -translate-y-1/2 h-14 w-14 items-center justify-center cursor-pointer rounded-full bg-white/50 text-white transition">
+          <Play size={18} fill="white" />
+        </div>
 
-          {/* Badge */}
-          <BadgeReco className="absolute right-2 top-2 z-10" reco={90} />
-
-          {/* Indicateur Play (Visuel uniquement, pas d'interaction propre car déjà dans un lien) */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-transform duration-300 group-hover:opacity-100 scale-90 group-hover:scale-100">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/30 backdrop-blur-md text-white">
-              <Play size={20} fill="white" />
-            </div>
-          </div>
-
-          {/* Infos en bas */}
-          <div className="absolute bottom-0 left-0 w-full p-3 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="absolute bottom-0 left-0 w-full p-3 z-10 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          {media.release_date && (
             <p className="text-[10px] font-bold text-gray-400 uppercase">
-              {Media.release_date?.split("-")[0] || "2026"}
+              {media.release_date.split("-")[0] || "2026"}
             </p>
-            <h3 className="line-clamp-1 text-[13px] font-semibold text-white">
-              {Media.title ?? Media.name ?? "Titre non disponible"}
-            </h3>
-          </div>
-        </Link>
-      ))}
-    </>
+          )}
+          <h3 className="line-clamp-1 text-[13px] font-semibold text-white">
+            {media.title ?? media.name ?? "Titre non disponible"}
+          </h3>
+        </div>
+      </Link>
+    </div>
   );
 }
