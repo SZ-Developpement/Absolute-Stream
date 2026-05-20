@@ -1,3 +1,4 @@
+import { LucideIcon } from "lucide-react";
 import { Genre, Media } from "./tmdb";
 
 interface LibraryContainerProps {
@@ -14,4 +15,37 @@ interface DiscoverMediaProps {
   genres: Genre[];
 }
 
-export type { LibraryContainerProps, DiscoverMediaProps };
+interface ActionsButtonProps {
+  onclick?: () => void;
+  Icon: LucideIcon;
+  className?: string;
+  text?: string;
+}
+
+interface LikesButtonProps {
+  isActive: boolean;
+  activeBgColor: string;
+  onClick: () => void;
+  Icon: React.ComponentType<{ size: number; color: string }>;
+  count?: number;
+}
+
+interface TableInfosProps {
+  name: string;
+  children: React.ReactNode;
+}
+
+interface ActorCardProps {
+  imageUrl?: string;
+  actorName: string;
+  actorRole: string;
+}
+
+export type {
+  LibraryContainerProps,
+  DiscoverMediaProps,
+  ActionsButtonProps,
+  LikesButtonProps,
+  TableInfosProps,
+  ActorCardProps,
+};
