@@ -1,26 +1,40 @@
-import { NextResponse } from "next/server"; // Importation de NextResponse pour gérer les réponses HTTP
-import { NextRequest } from "next/server";
-import { DiscoverMediaResponse } from "@/types/tmdb"; // Importation pour typer la réponse de l'API TMDB
+// ============================================================================
+// GET /api/tvshows/discoverTvshows?sort_by=...&with_genres=...
+// ----------------------------------------------------------------------------
+// Endpoint /discover pour les séries. Même schéma que discoverMovies sauf
+// qu'on EXCLUT les animes manuellement après réception.
+//
+// Pourquoi le filtrage est fait CÔTÉ SERVEUR plutôt que dans le composant
+// client ?
+//   1. On ne renvoie au front que les données réellement utilisables (moins
+//      de bande passante).
+//   2. La règle "anime = genre 16 + origine JP" est centralisée → si demain
+//      on change la définition, on change ici uniquement.
+//   3. Le composant client reste générique (DiscoverMedia ne sait pas qu'il
+//      affiche des séries) → moins de code dupliqué.
+// ============================================================================
 
-// Fonction GET pour récupérer les séries TV à découvrir (avec genre et tri optionnels)
+import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { DiscoverMediaResponse } from "@/types/tmdb";
+
 export async function GET(request: NextRequest) {
-  // Récupération de la clé API depuis les variables d'environnement
   const apiKey = process.env.TMDB_API_KEY;
-  // Récupération des paramètres envoyés par le composant client (sort_by et with_genres)
+
+  // Lecture des filtres envoyés par le composant DiscoverMedia (côté client)
   const searchParams = request.nextUrl.searchParams;
   const sortBy = searchParams.get("sort_by") || "popularity.desc";
   const withGenres = searchParams.get("with_genres");
 
-  // Vérification de la présence de la clé API
   if (!apiKey) {
-    // Si la clé API est manquante, retourner une réponse d'erreur
     return NextResponse.json(
       { error: "TMDB_API_KEY manquante" },
       { status: 500 },
     );
   }
 
-  // Construction de l'URL pour l'API TMDB pour découvrir des séries TV
+  // Construction propre via la classe URL (encode automatiquement, on évite
+  // les bugs de caractères spéciaux ou d'espaces).
   const url = new URL("https://api.themoviedb.org/3/discover/tv");
   url.searchParams.append("api_key", apiKey);
   url.searchParams.append("include_adult", "false");
@@ -28,28 +42,35 @@ export async function GET(request: NextRequest) {
   url.searchParams.append("language", "en-US");
   url.searchParams.append("page", "1");
   url.searchParams.append("sort_by", sortBy);
+  // Ajout optionnel : si pas de genre choisi, on omet le param (= tous genres)
   if (withGenres) {
     url.searchParams.append("with_genres", withGenres);
   }
 
-  // Options pour la requête fetch, spécifiant la méthode et les en-têtes, notamment pour accepter une réponse JSON
   const options = { method: "GET", headers: { accept: "application/json" } };
 
-  //try essaye d'exécuter la requête et de traiter la réponse
   try {
-    const res = await fetch(url.toString(), options); // Exécution de la requête fetch pour récupérer les données de TMDB
-    // Vérification de la réponse de TMDB pour s'assurer qu'elle est correcte
+    const res = await fetch(url.toString(), options);
     if (!res.ok) {
-      // Si la réponse n'est pas correcte, retourner une réponse d'erreur avec le statut de la réponse de TMDB
       return NextResponse.json(
         { error: "Erreur TMDB" },
         { status: res.status },
       );
     }
 
-    // Si la réponse est correcte, parser les données JSON et les typer avec DiscoverMediaResponse
     const data: DiscoverMediaResponse = await res.json();
-    // Exclure les anime (genre Animation 16 + origine Japon) pour rester cohérent avec /series.
+
+    // ----- Filtrage anime -----
+    // On copie l'objet `data` via le spread `...data` pour préserver les
+    // champs page, total_pages, total_results — et on REMPLACE results par
+    // une version filtrée.
+    //
+    // `m.genre_ids?.includes(16)` :
+    //   - le `?.` (optional chaining) évite un crash si genre_ids est undefined
+    //   - includes(16) renvoie true si 16 (Animation) est dans la liste
+    //
+    // Le `&&` cumule les deux conditions : il faut Animation ET origine Japon.
+    // On préfixe par `!` pour GARDER les éléments qui ne sont PAS des animes.
     const filtered = {
       ...data,
       results: (data.results || []).filter(
@@ -58,9 +79,7 @@ export async function GET(request: NextRequest) {
       ),
     };
     return NextResponse.json(filtered);
-    //catch attrape les erreurs qui peuvent survenir lors de la requête ou du traitement de la réponse et retourne une réponse d'erreur générique
   } catch {
-    // En cas d'erreur, retourner une réponse d'erreur générique avec un statut 500
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

@@ -1,49 +1,64 @@
-import { NextResponse } from "next/server"; // Importation de NextResponse pour gérer les réponses HTTP
-import { NextRequest } from "next/server"; // Importation de NextRequest pour gérer les réponses HTTP
-import { FindByIDResponse } from "@/types/tmdb"; // Importation pour typer la réponse de l'API TMDB
+// ============================================================================
+// GET /api/findByID/[external_id]
+// ----------------------------------------------------------------------------
+// Permet de retrouver un média TMDB à partir d'un identifiant EXTERNE.
+// Exemple : on a un id IMDB ("tt0133093" pour The Matrix) → on récupère
+// l'objet TMDB correspondant.
+//
+// Convention Next App Router pour les routes dynamiques :
+//   - Le nom de dossier entre crochets [external_id] devient un paramètre.
+//   - On le récupère via `context.params.external_id` dans le handler.
+//
+// Depuis Next 15, params est une Promise (préparation au streaming) → il
+// faut faire `await context.params` pour lire la valeur.
+// ============================================================================
 
-// Fonction GET pour récupérer les séries TV les mieux notées
+import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { FindByIDResponse } from "@/types/tmdb";
+
+// Signature du handler avec param dynamique :
+//   - `request` : la requête HTTP (NextRequest)
+//   - `context` : objet contenant params, une Promise<{ external_id: string }>
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ external_id: string }> },
 ) {
-  const { external_id } = await context.params; // On utilise la syntaxe de déstructuration pour extraire external_id de params
-  // Récupération de la clé API depuis les variables d'environnement
+  // Await + destructuration en une ligne :
+  //   const params = await context.params;     // { external_id: "tt..." }
+  //   const external_id = params.external_id;  // "tt..."
+  // Compacté en : `const { external_id } = await context.params;`
+  const { external_id } = await context.params;
   const apiKey = process.env.TMDB_API_KEY;
 
-  // Vérification de la présence de la clé API
   if (!apiKey) {
-    // Si la clé API est manquante, retourner une réponse d'erreur
     return NextResponse.json(
       { error: "TMDB_API_KEY manquante" },
       { status: 500 },
     );
   }
 
-  // Construction de l'URL pour l'API TMDB pour les séries TV les mieux notées
+  // `external_source=imdb_id` indique à TMDB que l'id qu'on lui passe est
+  // un identifiant IMDB (pas TMDB). On pourrait aussi utiliser tvdb_id,
+  // facebook_id, twitter_id, etc. selon ce qu'on a sous la main.
   const url = `https://api.themoviedb.org/3/find/${external_id}?external_source=imdb_id&language=en-US&api_key=${apiKey}`;
-
-  // Options pour la requête fetch, spécifiant la méthode et les en-têtes, notamment pour accepter une réponse JSON
   const options = { method: "GET", headers: { accept: "application/json" } };
 
-  //try essaye d'exécuter la requête et de traiter la réponse
   try {
-    const res = await fetch(url, options); // Exécution de la requête fetch pour récupérer les données de TMDB
-    // Vérification de la réponse de TMDB pour s'assurer qu'elle est correcte
+    const res = await fetch(url, options);
     if (!res.ok) {
-      // Si la réponse n'est pas correcte, retourner une réponse d'erreur avec le statut de la réponse de TMDB
       return NextResponse.json(
         { error: "Erreur TMDB" },
         { status: res.status },
       );
     }
 
-    // Si la réponse est correcte, parser les données JSON et les typer avec FindByIDResponse
+    // TMDB renvoie un objet avec PLUSIEURS tableaux (movie_results, tv_results,
+    // person_results, ...) car un id IMDB peut correspondre à n'importe quoi.
+    // Le client choisira lequel utiliser selon son besoin.
     const data: FindByIDResponse = await res.json();
     return NextResponse.json(data);
-    //catch attrape les erreurs qui peuvent survenir lors de la requête ou du traitement de la réponse et retourne une réponse d'erreur générique
   } catch {
-    // En cas d'erreur, retourner une réponse d'erreur générique avec un statut 500
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

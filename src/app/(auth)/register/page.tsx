@@ -1,3 +1,15 @@
+// ============================================================================
+// /register — page d'inscription
+// ----------------------------------------------------------------------------
+// Très proche de /login : un formulaire contrôlé (name + email + password),
+// on délègue le signUp au hook useAuth, puis on redirige vers /login pour
+// que l'utilisateur entre ses identifiants tout neufs.
+//
+// Différence avec /login : ici on gère la redirection "déjà connecté" via
+// useEffect plutôt qu'en plein render (évite le warning Next "router.push
+// during render").
+// ============================================================================
+
 "use client";
 
 import { FormEvent, useState, useEffect } from "react";
@@ -13,7 +25,8 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- CORRECTION : Utilisation de useEffect pour la redirection ---
+  // Redirection si déjà connecté — fait dans useEffect pour éviter de mutter
+  // le router pendant le render React (provoquerait un warning).
   useEffect(() => {
     if (user) {
       router.push("/");
@@ -26,7 +39,7 @@ export default function RegisterPage() {
 
     try {
       await signUp(email, password, name);
-      // Rediriger vers login après inscription réussie
+      // Après création de compte → redirection vers /login
       router.push("/login");
     } catch (err) {
       console.error(err);
@@ -35,7 +48,7 @@ export default function RegisterPage() {
     }
   };
 
-  // Affichage du chargement initial de la session
+  // Chargement initial du contexte d'auth
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -44,7 +57,7 @@ export default function RegisterPage() {
     );
   }
 
-  // Si l'utilisateur est présent, on ne rend rien (le useEffect s'occupe du push)
+  // Déjà connecté → on ne rend rien, le useEffect ci-dessus s'occupe du push
   if (user) {
     return null;
   }

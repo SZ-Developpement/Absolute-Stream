@@ -1,3 +1,13 @@
+// ============================================================================
+// Composant UI : Label (basé sur Radix UI)
+// ----------------------------------------------------------------------------
+// Wrapper accessible autour de @radix-ui/react-label. Sert à associer un
+// libellé à un input ou un groupe (RadioGroup, Slider...). Radix gère le
+// click-to-focus et la liaison htmlFor automatiquement.
+//
+// Utilisé dans : formulaires de login/register et la page settings.
+// ============================================================================
+
 "use client";
 
 import * as React from "react";

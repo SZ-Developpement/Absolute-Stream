@@ -1,3 +1,15 @@
+// ============================================================================
+// /login — page de connexion
+// ----------------------------------------------------------------------------
+// Page client (formulaire contrôlé). Le vrai login est délégué au hook
+// useAuth (qui appelle better-auth en interne). Ici on gère seulement :
+//   - les champs email / password
+//   - le submit + redirection vers "/" si succès
+//   - l'affichage d'une erreur si la connexion échoue
+//
+// Note : si l'utilisateur est DÉJÀ connecté, on le pousse direct vers "/".
+// ============================================================================
+
 "use client";
 
 import { FormEvent, useState } from "react";
@@ -8,6 +20,7 @@ import Link from "next/link";
 export default function LoginPage() {
   const router = useRouter();
   const { signIn, user, loading, error } = useAuth();
+  // États contrôlés du formulaire
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +31,7 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password);
-      // Rediriger vers l'accueil après connexion réussie
+      // Succès → on redirige vers la home
       router.push("/");
     } catch (err) {
       console.error(err);
@@ -27,6 +40,7 @@ export default function LoginPage() {
     }
   };
 
+  // Le contexte d'auth est encore en train de vérifier la session
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -35,8 +49,8 @@ export default function LoginPage() {
     );
   }
 
+  // Si déjà connecté → on ne montre pas le formulaire, on redirige
   if (user) {
-    // Si déjà connecté, rediriger vers l'accueil
     router.push("/");
     return null;
   }
@@ -46,6 +60,7 @@ export default function LoginPage() {
       <div className="bg-white rounded-lg shadow p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Connexion</h2>
 
+        {/* Message d'erreur renvoyé par le contexte si signIn a échoué */}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {String(error)}
@@ -80,6 +95,7 @@ export default function LoginPage() {
           </button>
         </form>
 
+        {/* Liens secondaires : inscription + retour home */}
         <p className="text-center mt-4">
           Pas de compte?
           <Link href="/register" className="ml-2 text-blue-500 hover:underline">

@@ -1,3 +1,14 @@
+// ============================================================================
+// Composant UI : RadioCards (basé sur Radix UI)
+// ----------------------------------------------------------------------------
+// Variante "cartes" du Radio classique : au lieu d'avoir des petits points
+// ronds, chaque option est une carte cliquable plus visible. Construit
+// au-dessus de @radix-ui/react-radio-group → on récupère la gestion des
+// flèches clavier, le state contrôlé et l'accessibilité ARIA gratuitement.
+//
+// Utilisé pour : choisir un mode (Match en duo / Tournoi etc).
+// ============================================================================
+
 "use client";
 
 import * as React from "react";

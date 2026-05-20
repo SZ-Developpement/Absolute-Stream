@@ -1,3 +1,20 @@
+// ============================================================================
+// /[type]/[id] — page fiche détail d'un média (film ou série)
+// ----------------------------------------------------------------------------
+// Route dynamique double : `type` vaut "movies" ou "tvshows", `id` est l'id
+// TMDB. Exemple : /movies/603 = la fiche du film The Matrix.
+//
+// SSR complet :
+//   1. On fetch les détails TMDB (+ credits) via append_to_response=credits
+//      → un seul aller-retour API au lieu de deux.
+//   2. Si l'utilisateur est connecté, on vérifie en BDD s'il a déjà mis ce
+//      média en favori → on passe l'état initial à <FavoriteButton/> pour
+//      qu'il sache quoi afficher dès le premier rendu (pas de flash).
+//
+// Affichage : poster à gauche, métadonnées + synopsis + bouton favori à droite,
+// puis casting (top 10 acteurs) en dessous, puis bloc <details> de debug JSON.
+// ============================================================================
+
 import Image from "next/image";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -5,6 +22,7 @@ import { auth } from "@/lib/auth";
 import { MediaType } from "@prisma/client";
 import FavoriteButton from "@/components/medias/FavoriteButton";
 
+// Types légers : on ne déclare que ce qu'on consomme dans le rendu
 interface Genre {
   id: number;
   name: string;
@@ -17,14 +35,17 @@ interface Actor {
   profile_path: string | null;
 }
 
+// Récupère détails + credits dans une seule requête grâce à append_to_response
 async function getMediaDetails(type: string, id: string) {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) throw new Error("Clé TMDB manquante");
 
+  // L'URL TMDB attend "movie"/"tv", pas "movies"/"tvshows"
   const tmdbType = type === "movies" ? "movie" : "tv";
   const url = `https://api.themoviedb.org/3/${tmdbType}/${id}?language=fr-FR&api_key=${apiKey}&append_to_response=credits`;
 
   try {
+    // cache: "no-store" → toujours données fraîches (utile en dev, à revoir en prod)
     const response = await fetch(url, { cache: "no-store" });
     if (!response.ok) return null;
     return await response.json();
@@ -39,9 +60,11 @@ export default async function BasicMediaPage({
 }: {
   params: Promise<{ type: string; id: string }>;
 }) {
+  // Next 15+ : params est une Promise → await obligatoire
   const { type, id } = await params;
   const mediaData = await getMediaDetails(type, id);
 
+  // Garde-fou : id inexistant côté TMDB
   if (!mediaData) {
     return (
       <div className="p-10 text-red-500 font-bold text-xl">
@@ -50,17 +73,18 @@ export default async function BasicMediaPage({
     );
   }
 
-  // 1. Convertir le type d'URL en MediaType Prisma
+  // 1. Conversion type URL ("movies"/"tvshows") → enum Prisma MediaType
   const dbMediaType = type === "movies" ? MediaType.MOVIE : MediaType.TV_SHOW;
   const tmdbId = parseInt(id);
 
-  // 2. Récupérer la session utilisateur
+  // 2. Session côté serveur via better-auth (lit le cookie de session)
   const session = await auth.api.getSession({
     headers: await headers(),
   });
   const userId = session?.user?.id;
 
-  // 3. Vérifier l'état initial du favori dans la BDD
+  // 3. État initial du favori : on interroge la BDD seulement si user connecté.
+  //    Sinon le bouton n'est pas affiché de toute façon.
   let isFavorite = false;
   if (userId) {
     const existingFavorite = await prisma.favorite.findUnique({
@@ -72,23 +96,28 @@ export default async function BasicMediaPage({
         },
       },
     });
-    isFavorite = !!existingFavorite;
+    isFavorite = !!existingFavorite; // cast en boolean propre
   }
 
+  // Compatibilité films / séries : title vs name, release_date vs first_air_date
   const title = mediaData.title || mediaData.name;
   const date = mediaData.release_date || mediaData.first_air_date;
   const year = date ? new Date(date).getFullYear() : "N/A";
 
+  // URL de l'affiche avec fallback placeholder si TMDB n'a pas d'image
   const posterUrl = mediaData.poster_path
     ? `https://image.tmdb.org/t/p/w500${mediaData.poster_path}`
     : "https://via.placeholder.com/500x750?text=Pas+d'affiche";
 
+  // On limite le casting aux 10 premiers acteurs (les plus importants)
   const cast = mediaData.credits?.cast?.slice(0, 10) || [];
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-8 font-sans mt-20">
       <div className="max-w-5xl mx-auto flex flex-col gap-8">
+        {/* === BLOC PRINCIPAL : Poster + infos === */}
         <div className="flex flex-col md:flex-row gap-8 bg-gray-800 p-6 rounded-xl border border-gray-700">
+          {/* Affiche du média */}
           <div className="shrink-0">
             <Image
               src={posterUrl}
@@ -105,7 +134,7 @@ export default async function BasicMediaPage({
                 {title} <span className="text-gray-400 text-2xl">({year})</span>
               </h1>
 
-              {/* Le bouton ne s'affiche que si l'utilisateur est connecté */}
+              {/* Bouton favori — affiché seulement si user connecté */}
               {userId && (
                 <div className="mt-1">
                   <FavoriteButton
@@ -117,6 +146,7 @@ export default async function BasicMediaPage({
               )}
             </div>
 
+            {/* Métadonnées rapides (note + type d'URL pour debug) */}
             <div className="flex gap-4 text-sm font-semibold text-gray-300">
               <span className="bg-gray-700 px-3 py-1 rounded">
                 Note : {mediaData.vote_average?.toFixed(1)}/10
@@ -134,6 +164,7 @@ export default async function BasicMediaPage({
               </p>
             </div>
 
+            {/* Pastilles de genres (ronde, contour gris) */}
             <div className="flex gap-2 flex-wrap mt-auto">
               {mediaData.genres?.map((g: Genre) => (
                 <span
@@ -147,6 +178,7 @@ export default async function BasicMediaPage({
           </div>
         </div>
 
+        {/* === CASTING PRINCIPAL === grille des 10 premiers acteurs */}
         <div>
           <h2 className="text-2xl font-bold mb-4 text-white">
             Casting Principal
@@ -173,6 +205,7 @@ export default async function BasicMediaPage({
                     <p className="font-bold text-sm text-white text-center leading-tight">
                       {actor.name}
                     </p>
+                    {/* Nom du personnage joué (ex: "Neo") */}
                     <p className="text-xs text-gray-400 text-center mt-1">
                       {actor.character}
                     </p>
@@ -185,6 +218,8 @@ export default async function BasicMediaPage({
           )}
         </div>
 
+        {/* === BLOC DEBUG === <details> repliable avec le JSON brut TMDB.
+            Pratique en dev pour voir ce que renvoie l'API ; à virer en prod. */}
         <details className="mt-10 bg-black/50 p-4 rounded border border-gray-800 cursor-pointer">
           <summary className="font-mono text-sm text-gray-500 hover:text-white">
             Afficher le JSON complet de TMDB (pour le debug)

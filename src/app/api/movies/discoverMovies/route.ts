@@ -1,57 +1,80 @@
-import { NextResponse } from "next/server"; // Importation de NextResponse pour gérer les réponses HTTP
-import { NextRequest } from "next/server";
-import { DiscoverMediaResponse } from "@/types/tmdb"; // Importation pour typer la réponse de l'API TMDB
+// ============================================================================
+// GET /api/movies/discoverMovies?sort_by=...&with_genres=...
+// ----------------------------------------------------------------------------
+// Endpoint de découverte côté Films. Contrairement à /popular ou /top_rated
+// qui sont figés, /discover accepte plein de filtres et c'est ce qu'on
+// expose ici via deux query params :
+//   - sort_by      : ordre (popularity.desc, vote_average.desc, ...)
+//   - with_genres  : id d'un genre (ex: "28" pour Action)
+//
+// L'utilisateur change un filtre → DiscoverMedia (côté client) refetch
+// cette route avec les nouveaux params → on transmet à TMDB → on renvoie.
+// ============================================================================
 
-// Fonction GET pour récupérer les films les mieux notés
+import { NextResponse } from "next/server";
+// NextRequest = extension de la Request standard avec des helpers Next-spécifiques
+// (notamment `nextUrl` qui parse l'URL et expose les searchParams typés).
+import { NextRequest } from "next/server";
+import { DiscoverMediaResponse } from "@/types/tmdb";
+
+// Quand la route a besoin de lire la requête entrante (query params, cookies,
+// headers...), on accepte un paramètre `request: NextRequest`.
 export async function GET(request: NextRequest) {
-  // Récupération de la clé API depuis les variables d'environnement
   const apiKey = process.env.TMDB_API_KEY;
+
+  // request.nextUrl est de type NextURL (= URL standard + extras).
+  // .searchParams est une instance de URLSearchParams (Web API standard).
   const searchParams = request.nextUrl.searchParams;
+
+  // .get(key) renvoie string | null. Le `|| "popularity.desc"` donne la
+  // valeur par défaut si le filtre n'a pas été passé par le client.
   const sortBy = searchParams.get("sort_by") || "popularity.desc";
+
+  // Pour with_genres on ne fournit PAS de défaut : null = "pas de filtre genre"
+  // → on n'ajoutera tout simplement pas le param à TMDB.
   const withGenres = searchParams.get("with_genres");
 
-  // Vérification de la présence de la clé API
   if (!apiKey) {
-    // Si la clé API est manquante, retourner une réponse d'erreur
     return NextResponse.json(
       { error: "TMDB_API_KEY manquante" },
       { status: 500 },
     );
   }
 
-  // Construction de l'URL pour l'API TMDB pour découvrir des films
+  // On utilise la classe URL native plutôt que la concaténation de chaîne :
+  // c'est plus safe (encode automatiquement les caractères spéciaux) et plus
+  // lisible. `url.searchParams.append(k, v)` = ajoute "&k=v" à la query.
   const url = new URL("https://api.themoviedb.org/3/discover/movie");
   url.searchParams.append("api_key", apiKey);
-  url.searchParams.append("include_adult", "false");
-  url.searchParams.append("include_video", "false");
+  url.searchParams.append("include_adult", "false"); // jamais d'adulte
+  url.searchParams.append("include_video", "false"); // pas les trailers/bonus
   url.searchParams.append("language", "en-US");
   url.searchParams.append("page", "1");
   url.searchParams.append("sort_by", sortBy);
+
+  // Ajout conditionnel : si pas de filtre genre, on ne met rien dans l'URL.
+  // TMDB acceptera la requête sans `with_genres` (= tous les genres).
   if (withGenres) {
     url.searchParams.append("with_genres", withGenres);
   }
 
-  // Options pour la requête fetch, spécifiant la méthode et les en-têtes, notamment pour accepter une réponse JSON
   const options = { method: "GET", headers: { accept: "application/json" } };
 
-  //try essaye d'exécuter la requête et de traiter la réponse
   try {
-    const res = await fetch(url.toString(), options); // Exécution de la requête fetch pour récupérer les données de TMDB
-    // Vérification de la réponse de TMDB pour s'assurer qu'elle est correcte
+    // url.toString() reconstruit la chaîne complète à partir de l'objet URL.
+    // fetch() accepte aussi directement un objet URL mais .toString() est
+    // explicite et compatible avec toutes les versions de Node.
+    const res = await fetch(url.toString(), options);
     if (!res.ok) {
-      // Si la réponse n'est pas correcte, retourner une réponse d'erreur avec le statut de la réponse de TMDB
       return NextResponse.json(
         { error: "Erreur TMDB" },
         { status: res.status },
       );
     }
 
-    // Si la réponse est correcte, parser les données JSON et les typer avec TopRatedTVResponse
     const data: DiscoverMediaResponse = await res.json();
     return NextResponse.json(data);
-    //catch attrape les erreurs qui peuvent survenir lors de la requête ou du traitement de la réponse et retourne une réponse d'erreur générique
   } catch {
-    // En cas d'erreur, retourner une réponse d'erreur générique avec un statut 500
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

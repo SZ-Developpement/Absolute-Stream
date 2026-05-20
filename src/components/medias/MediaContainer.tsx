@@ -1,3 +1,11 @@
+// ============================================================================
+// MediaContainer — wrapper standard pour le contenu des pages catalogue
+// ----------------------------------------------------------------------------
+// Centralise les classes `custom-container` (largeur max, padding...) et
+// l'espacement vertical entre sections. On évite ainsi de répéter ce JSX
+// dans chaque page Films/Séries/Animes.
+// ============================================================================
+
 export default function MediaContainer({
   children,
 }: {
