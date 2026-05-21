@@ -2,6 +2,7 @@
 
 import MediaContainer from "@/components/medias/MediaContainer";
 import LikeDislikeGroup from "@/components/view-medias/LikeDislikeGroup";
+import NoteGroup from "@/components/view-medias/NoteGroup";
 import SubMenu from "@/components/view-medias/SubMenu";
 import Image from "next/image";
 import Link from "next/link";
@@ -55,7 +56,9 @@ export default function AnimesPage() {
             </div> */}
 
             {/* Like Actions */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
+              <NoteGroup count_abs={4.5} count_tmdb={7.8} />
+
               {/* Groupe de boutons Like/Dislike */}
               <LikeDislikeGroup />
             </div>

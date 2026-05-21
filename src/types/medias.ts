@@ -41,6 +41,11 @@ interface ActorCardProps {
   actorRole: string;
 }
 
+interface NoteGroupProps {
+  count_abs: number;
+  count_tmdb: number;
+}
+
 export type {
   LibraryContainerProps,
   DiscoverMediaProps,
@@ -48,4 +53,5 @@ export type {
   LikesButtonProps,
   TableInfosProps,
   ActorCardProps,
+  NoteGroupProps,
 };
