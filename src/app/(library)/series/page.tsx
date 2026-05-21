@@ -152,7 +152,7 @@ export default async function SeriesPage() {
       <DiscoverMedia
         title="Découvrir des séries"
         emptyMessage="Aucune série ne correspond à vos critères."
-        fetchEndpoint="/api/series/discoverTvshows"
+        fetchEndpoint="/api/tvshows/discoverTvshows"
         initialData={discoverSeries}
         genres={seriesGenres}
       />
