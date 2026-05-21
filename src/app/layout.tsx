@@ -21,7 +21,7 @@ import { GeistSans } from "geist/font/sans";
 // Import des styles globaux (Tailwind + nos custom CSS). Pas de syntaxe React,
 // juste un effet de bord à l'import → Next inclut le CSS dans le bundle.
 import "./globals.css";
-import { NavBar } from "@/components/layout/NavBar";
+import { NavBar } from "@/components/NavBar/NavBar";
 import { Footer } from "@/components/layout/Footer";
 import { PageBackground } from "@/components/layout/PageBackground";
 import { AuthProvider } from "@/providers/AuthContext";

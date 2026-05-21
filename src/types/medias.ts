@@ -5,6 +5,7 @@
 // on extrait sa signature ici pour éviter de la dupliquer.
 // ============================================================================
 
+import { LucideIcon } from "lucide-react";
 import { Genre, Media } from "./tmdb";
 
 // Props du wrapper "section" sur les pages catalogue (Movies, Series, Animes).
@@ -26,4 +27,43 @@ interface DiscoverMediaProps {
   genres: Genre[]; // Liste des genres pour le menu déroulant
 }
 
-export type { LibraryContainerProps, DiscoverMediaProps };
+interface ActionsButtonProps {
+  onclick?: () => void;
+  Icon: LucideIcon;
+  className?: string;
+  text?: string;
+}
+
+interface LikesButtonProps {
+  isActive: boolean;
+  activeBgColor: string;
+  onClick: () => void;
+  Icon: React.ComponentType<{ size: number; color: string }>;
+  count?: number;
+}
+
+interface TableInfosProps {
+  name: string;
+  children: React.ReactNode;
+}
+
+interface ActorCardProps {
+  imageUrl?: string;
+  actorName: string;
+  actorRole: string;
+}
+
+interface NoteGroupProps {
+  count_abs: number;
+  count_tmdb: number;
+}
+
+export type {
+  LibraryContainerProps,
+  DiscoverMediaProps,
+  ActionsButtonProps,
+  LikesButtonProps,
+  TableInfosProps,
+  ActorCardProps,
+  NoteGroupProps,
+};
