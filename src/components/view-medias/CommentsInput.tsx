@@ -2,7 +2,7 @@ import { Send } from "lucide-react";
 
 export default function CommentsInput() {
   return (
-    <div className="group relative rounded-xl border border-[#262626] bg-[#0d0d0d] p-2 transition-all duration-300 focus-within:border-[#404040] focus-within:ring-1 focus-within:ring-[#404040]">
+    <div className="group relative rounded-xl border border-[#262626] bg-[#0d0d0d]/80 p-2 transition-all duration-300 focus-within:border-[#404040] focus-within:ring-1 focus-within:ring-[#404040]">
       {/* Zone de texte */}
       <textarea
         className="w-full bg-transparent px-3 py-2 text-sm text-[#f5f5f5] placeholder-[#737373] resize-none outline-none border-0 focus:ring-0"
