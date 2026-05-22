@@ -42,6 +42,7 @@ export function DiscoverMedia({
   fetchEndpoint,
   initialData,
   genres,
+  mediaType,
 }: DiscoverMediaProps) {
   // useState<T>(initial) :
   //   - useState renvoie [valeur, setter]
@@ -223,7 +224,9 @@ export function DiscoverMedia({
               - sinon ET on n'est PAS en train de charger → message vide
               - sinon (= en chargement) → rien (la grille précédente reste grisée)  */}
         {medias.length > 0
-          ? medias.map((media) => <MediaCards key={media.id} media={media} />)
+          ? medias.map((media) => (
+              <MediaCards key={media.id} media={media} mediaType={mediaType} />
+            ))
           : !isPending && (
               // col-span-full = la phrase prend toute la largeur de la grille
               <p className="col-span-full py-8 text-center text-gray-500">

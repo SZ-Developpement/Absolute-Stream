@@ -1,10 +1,13 @@
+"use client";
+
 import { tabs } from "@/constants/nav-view";
 import { useState } from "react";
 import InformationView from "./InformationView";
 import CommentsView from "./CommentsView";
 import CastingView from "./CastingView";
+import { MediaPanelProps } from "@/types/medias";
 
-export default function SubMenu() {
+export default function SubMenu({ media, type }: MediaPanelProps) {
   const [activeTab, setActiveTab] = useState("informations");
 
   return (
@@ -34,8 +37,12 @@ export default function SubMenu() {
 
       {/* 2. On affiche le contenu dynamiquement selon l'onglet actif */}
       <div className="flex flex-col gap-4 w-full ">
-        {activeTab === "informations" && <InformationView />}
-        {activeTab === "casting" && <CastingView />}
+        {activeTab === "informations" && (
+          <InformationView media={media} type={type} />
+        )}
+        {activeTab === "casting" && (
+          <CastingView cast={media.credits?.cast ?? []} />
+        )}
         {activeTab === "commentaires" && <CommentsView />}
       </div>
     </div>

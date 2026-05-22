@@ -23,14 +23,20 @@ import Link from "next/link";
 
 // Signature : composant qui prend une seule prop `media` de type Media.
 // La destructuration `{ media }` extrait directement la prop.
-export default function MediasCard({ media }: { media: Media }) {
+export default function MediasCard({
+  media,
+  mediaType,
+}: {
+  media: Media;
+  mediaType: "movie" | "tv";
+}) {
   return (
     // `group` ici → les enfants peuvent réagir au hover via group-hover:...
     // aspect-2/3 = ratio largeur:hauteur 2:3 (= ratio standard d'une affiche)
     <div className="relative group overflow-hidden rounded-md aspect-2/3">
       <Link
         // Template literal : `${media.id}` insère la valeur dynamique
-        href={`/movies/${media.id}`}
+        href={`/view-media/${mediaType}/${media.id}`}
         // `before:*` = pseudo-élément CSS. On crée un overlay sombre qui apparaît
         // au hover :
         //   before:absolute before:-inset-px → couvre toute la carte + 1px de marge

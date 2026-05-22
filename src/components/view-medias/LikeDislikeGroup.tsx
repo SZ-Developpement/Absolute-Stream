@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Thumbs, ThumbsDown } from "../Icons/Thumbs";
 import { LikesButtonProps } from "@/types/medias";

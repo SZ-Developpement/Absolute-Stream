@@ -159,7 +159,7 @@ export default async function AnimesPage() {
         opts={{ align: "start", loop: true, dragFree: true }}
       >
         {popularAnimes.map((anime) => (
-          <MediaCards key={anime.id} media={anime} />
+          <MediaCards key={anime.id} media={anime} mediaType="tv" />
         ))}
       </EmblaCarousel>
 
@@ -169,7 +169,7 @@ export default async function AnimesPage() {
         opts={{ align: "start", loop: true, dragFree: true }}
       >
         {topRatedAnimes.map((anime) => (
-          <MediaCards key={anime.id} media={anime} />
+          <MediaCards key={anime.id} media={anime} mediaType="tv" />
         ))}
       </EmblaCarousel>
 
@@ -182,6 +182,7 @@ export default async function AnimesPage() {
         fetchEndpoint="/api/animes/discoverAnimes"
         initialData={discoverAnimes}
         genres={animeGenres}
+        mediaType="tv"
       />
     </MediaContainer>
   );
