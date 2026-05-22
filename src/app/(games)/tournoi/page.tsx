@@ -7,12 +7,15 @@
 // L'objectif futur : permettre à la communauté d'élire le meilleur film/série
 // dans un thème donné (ex: "le meilleur film d'horreur des années 90") via un
 // système de brackets type tournoi de tennis.
-//
-// Note Next : un composant qui retourne <div></div> reste un composant valide,
-// la route /tournoi est donc déjà accessible mais vide. Pratique pour réserver
-// la place dans la nav avant que le code soit prêt.
 // ============================================================================
 
+import UnderConstruction from "@/components/layout/UnderConstruction";
+
 export default function GamesPage() {
-  return <div></div>;
+  return (
+    <UnderConstruction
+      title="Tournois communautaires"
+      message="Les brackets de votes entre films et séries arrivent bientôt."
+    />
+  );
 }
