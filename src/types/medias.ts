@@ -25,6 +25,7 @@ interface DiscoverMediaProps {
   fetchEndpoint: string; // L'url de ton API interne: "/api/animes/discoverAnimes"
   initialData: Media[]; // Premiers résultats rendus en SSR
   genres: Genre[]; // Liste des genres pour le menu déroulant
+  mediaType: "movie" | "tv"; // Pour différencier les types de médias (films, séries, animes)
 }
 
 interface ActionsButtonProps {
