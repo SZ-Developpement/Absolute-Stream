@@ -6,12 +6,15 @@
 // ============================================================================
 
 import UnderConstruction from "@/components/layout/UnderConstruction";
+import MediaContainer from "@/components/medias/MediaContainer";
 
 export default function Top10Page() {
   return (
-    <UnderConstruction
-      title="Top 10 communauté"
-      message="Le classement des 10 médias préférés de la communauté arrive bientôt."
-    />
+    <MediaContainer className="min-h-screen">
+      <UnderConstruction
+        title="Top 10 communauté"
+        message="Le classement des 10 médias préférés de la communauté arrive bientôt."
+      />
+    </MediaContainer>
   );
 }

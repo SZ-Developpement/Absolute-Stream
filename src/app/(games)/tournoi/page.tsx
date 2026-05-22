@@ -10,12 +10,15 @@
 // ============================================================================
 
 import UnderConstruction from "@/components/layout/UnderConstruction";
+import MediaContainer from "@/components/medias/MediaContainer";
 
 export default function GamesPage() {
   return (
-    <UnderConstruction
-      title="Tournois communautaires"
-      message="Les brackets de votes entre films et séries arrivent bientôt."
-    />
+    <MediaContainer className="min-h-screen">
+      <UnderConstruction
+        title="Tournois communautaires"
+        message="Les brackets de votes entre films et séries arrivent bientôt."
+      />
+    </MediaContainer>
   );
 }

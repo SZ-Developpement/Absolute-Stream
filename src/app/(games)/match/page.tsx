@@ -7,12 +7,15 @@
 // ============================================================================
 
 import UnderConstruction from "@/components/layout/UnderConstruction";
+import MediaContainer from "@/components/medias/MediaContainer";
 
 export default function MatchPage() {
   return (
-    <UnderConstruction
-      title="Absolute Match"
-      message="Le swipe à deux pour trouver le film parfait arrive très bientôt."
-    />
+    <MediaContainer className="min-h-screen">
+      <UnderConstruction
+        title="Absolute Match"
+        message="Le swipe à deux pour trouver le film parfait arrive très bientôt."
+      />
+    </MediaContainer>
   );
 }
