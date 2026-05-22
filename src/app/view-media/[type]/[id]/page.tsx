@@ -1,22 +1,53 @@
-"use client";
-
 import MediaContainer from "@/components/medias/MediaContainer";
 import LikeDislikeGroup from "@/components/view-medias/LikeDislikeGroup";
 import NoteGroup from "@/components/view-medias/NoteGroup";
 import SubMenu from "@/components/view-medias/SubMenu";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
-export default function AnimesPage() {
+async function getMedia(type: string, id: string) {
+  const apiKey = process.env.TMDB_API_KEY;
+  const res = await fetch(
+    `https://api.themoviedb.org/3/${type}/${id}?language=fr-FR&api_key=${apiKey}`,
+    { next: { revalidate: 3600 } },
+  );
+
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export default async function ViewMediaPage({
+  params,
+}: {
+  params: Promise<{ id: string; type: "movie" | "tv" }>;
+}) {
+  const { id, type } = await params;
+  const media = await getMedia(type, id);
+
+  if (!media) notFound();
+
+  const backdropUrl = media.backdrop_path
+    ? `https://image.tmdb.org/t/p/original${media.backdrop_path}`
+    : null;
+
+  const posterUrl = media.poster_path
+    ? `https://image.tmdb.org/t/p/w600_and_h900_face${media.poster_path}`
+    : "/No-Image/no-image.png";
+
+  const title = media.title ?? media.name;
+
   return (
     <>
-      <Image
-        src="https://image.tmdb.org/t/p/original/qO55CD8tgVL1T4WKn6zYFFiD6lL.jpg"
-        alt="Background Image"
-        fill
-        className="object-cover object-center bg-black/50 opacity-20"
-        loading="eager"
-      />
+      {backdropUrl && (
+        <Image
+          src="https://image.tmdb.org/t/p/original/qO55CD8tgVL1T4WKn6zYFFiD6lL.jpg"
+          alt="Background Image"
+          fill
+          className="object-cover object-center bg-black/50 opacity-20"
+          loading="eager"
+        />
+      )}
       <MediaContainer>
         <div className="w-full min-h-screen flex flex-row gap-6 xl:gap-12 mt-12 z-10">
           {/* Bloc de gauche */}
@@ -24,17 +55,15 @@ export default function AnimesPage() {
             {/* Poster Media */}
             <div className="aspect-2/3 relative rounded-md transition overflow-hidden ">
               <Image
-                src={
-                  "https://image.tmdb.org/t/p/w600_and_h900_face/srq0MYdQRzdnW6OGfUti7oVbu32.jpg"
-                  // || "No-Image/no-image.png"
-                }
-                alt="Media Poster"
+                src={posterUrl || "No-Image/no-image.png"}
+                alt={title}
                 fill
                 className="object-cover object-top hover:scale-102 transition-transform duration-300"
               />
             </div>
             <Link
-              href="/media/1"
+              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(title + " bande annonce")}`}
+              target="_blank"
               className="px-6 py-3.5 text-sm rounded-md bg-[#262626] hover:bg-[#262626]/80 transition text-white text-center"
             >
               Voir la bande annonce
@@ -45,7 +74,7 @@ export default function AnimesPage() {
           <div className="flex-1 flex flex-col gap-4">
             {/* Titre */}
             <h1 className="text-3xl tracking-tighter font-semibold text-gray-100 line-clamp-1">
-              The Punisher : One Last Kill
+              {title}
             </h1>
 
             {/* Informations rapides */}
@@ -57,7 +86,10 @@ export default function AnimesPage() {
 
             {/* Like Actions */}
             <div className="flex items-center gap-4">
-              <NoteGroup count_abs={4.5} count_tmdb={7.8} />
+              <NoteGroup
+                count_abs={media.vote_average / 2}
+                count_tmdb={media.vote_average}
+              />
 
               {/* Groupe de boutons Like/Dislike */}
               <LikeDislikeGroup />
@@ -65,8 +97,7 @@ export default function AnimesPage() {
 
             {/* Synopsis */}
             <p className="text-[#a3a3a3] line-clamp-3">
-              Alors que Frank Castle cherche un sens à sa vie au-delà de la
-              vengeance, il replonge contre toute attente au cœur du combat.
+              {media.overview || "Aucun synopsis disponible."}
             </p>
 
             <SubMenu />
