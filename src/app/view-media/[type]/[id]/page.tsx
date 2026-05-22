@@ -2,19 +2,48 @@ import MediaContainer from "@/components/medias/MediaContainer";
 import LikeDislikeGroup from "@/components/view-medias/LikeDislikeGroup";
 import NoteGroup from "@/components/view-medias/NoteGroup";
 import SubMenu from "@/components/view-medias/SubMenu";
+import { MediaDetails } from "@/types/tmdb";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-async function getMedia(type: string, id: string) {
+async function getMedia(
+  type: "movie" | "tv",
+  id: string,
+): Promise<MediaDetails | null> {
   const apiKey = process.env.TMDB_API_KEY;
+
+  // append_to_response = on demande à TMDB d'inclure plusieurs ressources liées
+  // dans la même réponse. Une seule requête HTTP au lieu de 4.
+  //   - credits         → cast + crew (acteurs, réalisateur)
+  //   - videos          → bandes-annonces YouTube
+  //   - release_dates   → certifications films par pays (PG-13, etc.)
+  //   - content_ratings → classifications séries par pays (TV-MA, etc.)
+  const appendForMovie = "credits,videos,release_dates";
+  const appendForTv = "credits,videos,content_ratings";
+  const append = type === "movie" ? appendForMovie : appendForTv;
+
   const res = await fetch(
-    `https://api.themoviedb.org/3/${type}/${id}?language=fr-FR&api_key=${apiKey}`,
+    `https://api.themoviedb.org/3/${type}/${id}?language=fr-FR&append_to_response=${append}&api_key=${apiKey}`,
     { next: { revalidate: 3600 } },
   );
 
   if (!res.ok) return null;
   return res.json();
+}
+
+// Trouve la 1re bande-annonce YouTube officielle (fallback : 1re vidéo YouTube
+// dispo, peu importe le type). Renvoie la clé YouTube ou null.
+function findTrailerKey(media: MediaDetails): string | null {
+  const videos = media.videos?.results ?? [];
+  const youtubeVideos = videos.filter((v) => v.site === "YouTube");
+  const officialTrailer = youtubeVideos.find(
+    (v) => v.type === "Trailer" && v.official,
+  );
+  if (officialTrailer) return officialTrailer.key;
+  const anyTrailer = youtubeVideos.find((v) => v.type === "Trailer");
+  if (anyTrailer) return anyTrailer.key;
+  return youtubeVideos[0]?.key ?? null;
 }
 
 export default async function ViewMediaPage({
@@ -35,14 +64,18 @@ export default async function ViewMediaPage({
     ? `https://image.tmdb.org/t/p/w600_and_h900_face${media.poster_path}`
     : "/No-Image/no-image.png";
 
-  const title = media.title ?? media.name;
+  const title = media.title ?? media.name ?? "Titre inconnu";
+  const trailerKey = findTrailerKey(media);
+  const trailerHref = trailerKey
+    ? `https://www.youtube.com/watch?v=${trailerKey}`
+    : `https://www.youtube.com/results?search_query=${encodeURIComponent(title + " bande annonce")}`;
 
   return (
     <>
       {backdropUrl && (
         <Image
-          src="https://image.tmdb.org/t/p/original/qO55CD8tgVL1T4WKn6zYFFiD6lL.jpg"
-          alt="Background Image"
+          src={backdropUrl}
+          alt={`Backdrop ${title}`}
           fill
           className="object-cover object-center bg-black/50 opacity-20"
           loading="eager"
@@ -62,7 +95,7 @@ export default async function ViewMediaPage({
               />
             </div>
             <Link
-              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(title + " bande annonce")}`}
+              href={trailerHref}
               target="_blank"
               className="px-6 py-3.5 text-sm rounded-md bg-[#262626] hover:bg-[#262626]/80 transition text-white text-center"
             >
@@ -100,7 +133,7 @@ export default async function ViewMediaPage({
               {media.overview || "Aucun synopsis disponible."}
             </p>
 
-            <SubMenu />
+            <SubMenu media={media} type={type} />
           </div>
         </div>
       </MediaContainer>

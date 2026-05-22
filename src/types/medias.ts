@@ -6,7 +6,7 @@
 // ============================================================================
 
 import { LucideIcon } from "lucide-react";
-import { Genre, Media } from "./tmdb";
+import { CastMember, Genre, Media, MediaDetails } from "./tmdb";
 
 // Props du wrapper "section" sur les pages catalogue (Movies, Series, Animes).
 // Affiche un titre + un lien "Voir plus" + des cartes en enfants.
@@ -54,6 +54,16 @@ interface ActorCardProps {
   actorRole: string;
 }
 
+// Props partagées des composants du panneau de détail média
+interface MediaPanelProps {
+  media: MediaDetails;
+  type: "movie" | "tv";
+}
+
+interface CastingViewProps {
+  cast: CastMember[];
+}
+
 interface NoteGroupProps {
   count_abs: number;
   count_tmdb: number;
@@ -67,4 +77,6 @@ export type {
   TableInfosProps,
   ActorCardProps,
   NoteGroupProps,
+  MediaPanelProps,
+  CastingViewProps,
 };
