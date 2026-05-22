@@ -1,3 +1,5 @@
+"use client";
+
 import { tabs } from "@/constants/nav-view";
 import { useState } from "react";
 import InformationView from "./InformationView";
