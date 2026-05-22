@@ -191,7 +191,7 @@ export default async function MoviesPage() {
       >
         {/* .map(...) génère une MediasCard par film. key={movie.id} obligatoire. */}
         {popularMovies.map((movie) => (
-          <MediaCards key={movie.id} media={movie} />
+          <MediaCards key={movie.id} media={movie} mediaType="movie" />
         ))}
       </EmblaCarousel>
 
@@ -201,7 +201,7 @@ export default async function MoviesPage() {
         opts={{ align: "start", loop: true, dragFree: true }}
       >
         {topRatedMovies.map((movie) => (
-          <MediaCards key={movie.id} media={movie} />
+          <MediaCards key={movie.id} media={movie} mediaType="movie" />
         ))}
       </EmblaCarousel>
 
@@ -214,6 +214,7 @@ export default async function MoviesPage() {
         fetchEndpoint="/api/movies/discoverMovies"
         initialData={discoverMovies}
         genres={movieGenres}
+        mediaType="movie"
       />
     </MediaContainer>
   );

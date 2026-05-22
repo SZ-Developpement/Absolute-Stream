@@ -169,7 +169,7 @@ export default async function SeriesPage() {
         opts={{ align: "start", loop: true, dragFree: true }}
       >
         {popularSeries.map((serie) => (
-          <MediaCards key={serie.id} media={serie} />
+          <MediaCards key={serie.id} media={serie} mediaType="tv" />
         ))}
       </EmblaCarousel>
 
@@ -179,7 +179,7 @@ export default async function SeriesPage() {
         opts={{ align: "start", loop: true, dragFree: true }}
       >
         {topRatedSeries.map((serie) => (
-          <MediaCards key={serie.id} media={serie} />
+          <MediaCards key={serie.id} media={serie} mediaType="tv" />
         ))}
       </EmblaCarousel>
 
@@ -191,6 +191,7 @@ export default async function SeriesPage() {
         fetchEndpoint="/api/tvshows/discoverTvshows"
         initialData={discoverSeries}
         genres={seriesGenres}
+        mediaType="tv"
       />
     </MediaContainer>
   );
