@@ -1,43 +1,53 @@
-import { NextResponse } from "next/server"; // Importation de NextResponse pour gérer les réponses HTTP
-import { Genre } from "@/types/tmdb"; // Importation pour typer la réponse de l'API TMDB
+// ============================================================================
+// GET /api/movies/movieGenres
+// ----------------------------------------------------------------------------
+// Liste tous les genres de films connus de TMDB (Action, Aventure, Drame,
+// Comédie, ...). Utilisé côté front pour peupler le menu déroulant des
+// filtres dans <DiscoverMedia/>.
+//
+// Particularité de la réponse TMDB : elle est enveloppée dans un objet
+//   { genres: [ { id: 28, name: "Action" }, ... ] }
+// → on extrait `genres` via une destructuration pour renvoyer un tableau plat.
+// ============================================================================
 
-// Fonction GET pour récupérer les séries TV les mieux notées
+import { NextResponse } from "next/server";
+import { Genre } from "@/types/tmdb";
+
 export async function GET() {
-  // Récupération de la clé API depuis les variables d'environnement
   const apiKey = process.env.TMDB_API_KEY;
 
-  // Vérification de la présence de la clé API
   if (!apiKey) {
-    // Si la clé API est manquante, retourner une réponse d'erreur
     return NextResponse.json(
       { error: "TMDB_API_KEY manquante" },
       { status: 500 },
     );
   }
 
-  // Construction de l'URL pour l'API TMDB pour les genres de films
+  // Endpoint TMDB spécifique aux genres de FILMS (genre/movie/list).
+  // Il existe l'équivalent genre/tv/list pour les séries (cf. tvGenres).
   const url = `https://api.themoviedb.org/3/genre/movie/list?language=en&api_key=${apiKey}`;
-
-  // Options pour la requête fetch, spécifiant la méthode et les en-têtes, notamment pour accepter une réponse JSON
   const options = { method: "GET", headers: { accept: "application/json" } };
 
-  //try essaye d'exécuter la requête et de traiter la réponse
   try {
-    const res = await fetch(url, options); // Exécution de la requête fetch pour récupérer les données de TMDB
-    // Vérification de la réponse de TMDB pour s'assurer qu'elle est correcte
+    const res = await fetch(url, options);
     if (!res.ok) {
-      // Si la réponse n'est pas correcte, retourner une réponse d'erreur avec le statut de la réponse de TMDB
       return NextResponse.json(
         { error: "Erreur TMDB" },
         { status: res.status },
       );
     }
 
+    // Destructuration ES6 : on extrait directement la propriété `genres` de
+    // l'objet JSON et on lui colle un type au passage.
+    // Équivalent verbeux :
+    //   const data = await res.json();
+    //   const genres: Genre[] = data.genres;
     const { genres }: { genres: Genre[] } = await res.json();
+
+    // On renvoie le TABLEAU directement (pas l'objet wrapper). Côté front,
+    // on pourra faire .map(g => ...) sans détour.
     return NextResponse.json(genres);
-    //catch attrape les erreurs qui peuvent survenir lors de la requête ou du traitement de la réponse et retourne une réponse d'erreur générique
   } catch {
-    // En cas d'erreur, retourner une réponse d'erreur générique avec un statut 500
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

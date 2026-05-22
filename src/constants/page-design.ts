@@ -1,8 +1,18 @@
+// ============================================================================
+// Mapping route → image de fond
+// ----------------------------------------------------------------------------
+// Le composant <PageBackground/> et le hook usePageBackground utilisent cette
+// table pour décider quelle affiche d'ambiance montrer derrière chaque page.
+//
+// `exact: true`  → le fond ne s'applique QUE sur cette route précise
+// `exact: false` → s'applique aussi aux sous-routes (ex: /match/abc123)
+// ============================================================================
+
 interface ImageData {
   name: string;
   src: string;
-  // Propriete qui sert a savoir si les sous page auront aussi limage en fond
-  // exemple: si false la page /films/123 aura l'image de fond de la page /films
+  // Sert à savoir si les sous-pages auront aussi l'image en fond.
+  // Exemple : si false, /films/123 hérite du fond de /films
   exact?: boolean;
 }
 
@@ -28,6 +38,7 @@ export const pageDesign: ImageData[] = [
     exact: true,
   },
   {
+    // Match : exact=false → /match ET /match/[sessionId] partagent le même fond
     name: "match",
     src: "https://image.tmdb.org/t/p/original/nlPCdZlHtRNcF6C9hzUH4ebmV1w.jpg",
     exact: false,

@@ -1,3 +1,11 @@
+// ============================================================================
+// Options de tri TMDB pour les pages catalogue (Movies, Series, Animes)
+// ----------------------------------------------------------------------------
+// Les `value` correspondent exactement à ce qu'attend l'endpoint /discover de
+// TMDB (cf. https://developer.themoviedb.org/reference/discover-movie).
+// Format: <champ>.<asc|desc>
+// ============================================================================
+
 const SORT_OPTIONS = [
   { value: "popularity.desc", label: "Popularité Décroissante" },
   { value: "popularity.asc", label: "Popularité Croissante" },

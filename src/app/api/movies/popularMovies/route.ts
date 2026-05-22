@@ -1,40 +1,74 @@
-// Import de NextResponse pour formater la réponse API Next.js
+// ============================================================================
+// GET /api/movies/popularMovies
+// ----------------------------------------------------------------------------
+// Cette route fait office de proxy entre notre front et l'API TMDB.
+// Pourquoi un proxy plutôt que d'appeler TMDB directement depuis le navigateur ?
+//   1. On garde la clé API côté serveur (TMDB_API_KEY n'est JAMAIS envoyée
+//      au client → impossible à voler dans le DevTools).
+//   2. On peut typer, filtrer ou transformer la réponse avant de l'envoyer.
+//   3. Next gère un cache HTTP automatique → on évite de spammer TMDB.
+//
+// Convention App Router : ce fichier s'appelle "route.ts" et exporte un GET
+// (ou POST, PUT, ...). Next mappe automatiquement le chemin du dossier sur l'URL.
+// ============================================================================
+
+// NextResponse est la version "améliorée" de Response (web standard).
+// Elle ajoute notamment .json() qui sérialise + met le bon header Content-Type.
 import { NextResponse } from "next/server";
-// Import des types TypeScript pour typer la réponse et chaque film
+
+// Type importé depuis nos définitions maison. Sert juste à TypeScript pour
+// vérifier qu'on lit bien les bons champs sur l'objet renvoyé.
 import { PopularMediaResponse } from "@/types/tmdb";
 
-// Handler GET pour la route API des films actuellement populaires
+// `export async function GET()` = handler de la méthode HTTP GET.
+// Async parce qu'on va faire un await fetch() à l'intérieur.
 export async function GET() {
-  // Récupération de la clé d’API TMDB depuis les variables d’environnement
+  // process.env = variables d'environnement (fichier .env). Côté serveur
+  // uniquement → impossible d'y accéder depuis un composant client.
   const apiKey = process.env.TMDB_API_KEY;
+
+  // Garde-fou : sans clé d'API on ne peut rien faire → 500 explicite.
+  // Mieux qu'un crash silencieux : le front saura que c'est un problème serveur.
   if (!apiKey) {
-    // Retourne une erreur si la clé d’API est manquante
     return NextResponse.json(
       { error: "TMDB_API_KEY manquante" },
-      { status: 500 },
+      { status: 500 }, // 2e argument de NextResponse.json = options (status, headers...)
     );
   }
 
-  // Construction de l’URL pour l’API TMDB (films populaires)
+  // Concaténation classique en template string. La clé est en query param car
+  // c'est ce qu'attend TMDB (et c'est plus pratique que les headers).
   const url = `https://api.themoviedb.org/3/movie/popular?language=en-US&page=1&api_key=${apiKey}`;
+
+  // Options du fetch : on précise GET (par défaut mais explicite = mieux)
+  // et un header Accept pour dire "renvoyez-moi du JSON SVP".
   const options = { method: "GET", headers: { accept: "application/json" } };
 
+  // try/catch : indispensable car fetch() peut throw si le réseau plante,
+  // si TMDB met du temps à répondre, ou si le JSON est mal formé.
   try {
-    // Appel à l’API TMDB
     const res = await fetch(url, options);
+
+    // res.ok = true si status HTTP entre 200 et 299. Un 401 (clé invalide)
+    // ou 429 (rate limit) tomberont ici.
     if (!res.ok) {
-      // Retourne une erreur si la requête échoue côté TMDB
       return NextResponse.json(
         { error: "Erreur TMDB" },
-        { status: res.status },
+        { status: res.status }, // on propage le code HTTP de TMDB
       );
     }
-    // Typage de la réponse JSON avec PopularMediaResponse
+
+    // Annotation de type : on dit à TS "fais-moi confiance, c'est cette forme".
+    // C'est une assertion : TS ne valide PAS au runtime, donc si TMDB change
+    // sa réponse, on aura un bug silencieux. Pour aller plus loin → Zod.
     const data: PopularMediaResponse = await res.json();
-    // Retourne la réponse JSON au client
+
+    // On renvoie l'objet TMDB tel quel au client (le composant DiscoverMedia
+    // ne lira que data.results de toute façon).
     return NextResponse.json(data);
   } catch {
-    // Gestion d’erreur serveur (ex : problème réseau)
+    // catch sans paramètre = on ignore l'erreur (lint ESLint propre).
+    // Pour debug on pourrait écrire `catch (e) { console.error(e); }`.
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

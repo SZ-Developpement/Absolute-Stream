@@ -1,5 +1,14 @@
+// ============================================================================
+// Constantes affichées sur la page d'accueil (src/app/page.tsx)
+// ----------------------------------------------------------------------------
+// On externalise les données statiques pour garder la page focus sur la mise
+// en page. Si demain on veut ajouter une étape au Match ou une ligne au
+// tableau comparatif, c'est ici qu'on touche → aucune modif de JSX.
+// ============================================================================
+
 import { Users, Search, Star } from "lucide-react";
 
+// Les 4 étapes expliquant le mode Match (cartes numérotées 01 → 04)
 const stepsMatch = [
   {
     step: "01",
@@ -23,6 +32,8 @@ const stepsMatch = [
   },
 ];
 
+// Bento grid "Tout ce dont vous avez besoin" — 3 fonctionnalités phares
+// Icon = composant Lucide, pas une string : on passe directement le composant
 const features = [
   {
     Icon: Search,
@@ -44,6 +55,8 @@ const features = [
   },
 ];
 
+// Tableau comparatif Visiteur vs Membre.
+// `highlight: true` → ligne mise en avant visuellement (cyan au lieu de bleu).
 const featuresTable = [
   {
     name: "Recherche & Fiches TMDB",

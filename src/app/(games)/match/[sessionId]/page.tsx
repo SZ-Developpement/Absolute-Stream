@@ -1,3 +1,18 @@
+// ============================================================================
+// /match/[sessionId] — écran de paramétrage d'une session Match
+// ----------------------------------------------------------------------------
+// Vue côté joueur quand on rejoint/crée une session :
+//   - 3 colonnes : avatar joueur A à gauche, formulaire au milieu, joueur B à droite
+//   - Le formulaire permet de choisir :
+//       • Type de média (Film/Série/Anime/Tous)
+//       • Plage d'années (Slider min-max)
+//       • Genre
+//   - Bouton "Lancer le Match" déclenche le swipe quand les deux joueurs sont prêts
+//
+// Les composants Radix (RadioCards, Slider, Label) sont stylisés pour adopter
+// la couleur d'ambiance (--page-main) automatiquement.
+// ============================================================================
+
 "use client";
 
 import * as React from "react";
@@ -9,19 +24,23 @@ import Image from "next/image";
 import { RadioCards, RadioCardsItem } from "@/components/ui/radio-group";
 
 export default function MatchPage() {
+  // Slider plage d'années : [min, max]. Valeur par défaut large (1970 → 2026).
   const [value, setValue] = React.useState([1970, 2026]);
 
   return (
     <div className="pt-22 flex flex-col flex-1 items-center relative">
       <div className="grid grid-cols-3 w-full flex-1 items-center justify-center ">
+        {/* Avatar du premier joueur */}
         <UserCard />
 
+        {/* Carte centrale : tout le formulaire de réglages */}
         <div className="bg-background/30 backdrop-blur-xl flex flex-col gap-6 w-full rounded-xl p-6">
           <h2 className="text-2xl font-extrabold text-center uppercase">
             Absolute Match
           </h2>
 
           <form action="" className="flex flex-col gap-8 w-full">
+            {/* --- Choix du type de média --- */}
             <div className="flex flex-col gap-2 w-full">
               <Label className="text-base">Type de média</Label>
               <RadioCards
@@ -35,9 +54,11 @@ export default function MatchPage() {
               </RadioCards>
             </div>
 
+            {/* --- Plage d'années (Slider à 2 poignées) --- */}
             <div className="flex flex-col gap-2 w-full">
               <div className="flex flex-row items-center justify-between">
                 <Label className="text-base">Année</Label>
+                {/* Affichage live des bornes choisies, ex: "1990 - 2015" */}
                 <span className="text-sm text-muted-foreground">
                   {value.join(" - ")}
                 </span>
@@ -53,6 +74,7 @@ export default function MatchPage() {
               />
             </div>
 
+            {/* --- Choix de genre --- */}
             <div className="flex flex-col gap-2 w-full">
               <Label className="text-base">Genre</Label>
               <RadioCards
@@ -76,22 +98,26 @@ export default function MatchPage() {
             </div>
           </form>
 
+          {/* Bouton de lancement — couleur dérivée de l'ambiance */}
           <button className="bg-(--page-main) text-white flex flex-row gap-2 items-center justify-center font-semibold py-2 px-4 rounded-sm cursor-pointer hover:bg-(--page-main)/60 transition-colors duration-300">
             <Play size={16} />
             Lancer le Match
           </button>
         </div>
 
+        {/* Avatar du second joueur */}
         <UserCard />
       </div>
     </div>
   );
 }
 
+// Petit wrapper RadioCardsItem qui prend la couleur d'ambiance quand coché
 function CardChoice({ value, name }: { value: string; name: string }) {
   return (
     <RadioCardsItem
       value={value}
+      // data-[state=checked] = sélecteur Radix qui cible l'état sélectionné
       className="data-[state=checked]:bg-(--page-main)/70"
     >
       <span>{name}</span>
@@ -99,6 +125,8 @@ function CardChoice({ value, name }: { value: string; name: string }) {
   );
 }
 
+// Carte d'un joueur (avatar + pseudo). Fallback si l'utilisateur n'a pas
+// encore d'image de profil.
 function UserCard({ image, username }: { image?: string; username?: string }) {
   return (
     <div className="flex flex-col items-center gap-3">

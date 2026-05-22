@@ -1,3 +1,24 @@
+// ============================================================================
+// /movies — page catalogue Films (Server Component)
+// ----------------------------------------------------------------------------
+// Concept clé : c'est un SERVER COMPONENT (le default en App Router).
+// Différence avec un Client Component :
+//   - Pas de "use client" en haut → rendu PURE côté serveur
+//   - Peut être async → on peut await des fetchs directement dans le composant
+//   - Pas d'accès aux hooks React (useState, useEffect...) ni au navigateur
+//   - Le HTML est généré côté serveur → SEO + first paint plus rapide
+//
+// Pourquoi 4 fonctions getX() au lieu de réutiliser les /api routes ?
+//   - Les /api routes sont pour le CLIENT (fetch côté navigateur).
+//   - Ici on est côté serveur → on peut taper TMDB directement, sans passer
+//     par notre propre API (= un aller-retour HTTP en moins).
+//   - On utilise quand même `next: { revalidate }` → Next met en cache la
+//     réponse pour la durée indiquée.
+//
+// Note : chaque page de catalogue (movies/series/animes) a sa propre version
+// car les filtres TMDB diffèrent légèrement (animes = filtre origin_country JP).
+// ============================================================================
+
 import { DiscoverMedia } from "@/components/medias/DiscoverMedia";
 import { EmblaCarousel } from "@/components/medias/EmblaCarousel";
 import MediaCards from "@/components/medias/MediaCards";
@@ -9,77 +30,81 @@ import {
 } from "@/types/tmdb";
 import { Media, Genre } from "@/types/tmdb";
 
-// ------ FONCTION POUR RÉCUPÉRER LES FILMS POPULAIRES ------ \\
-
-/* On a besoin de Promise parce que l’appel API est asynchrone
-cela permet au reste du code d’attendre proprement 
-le tableau de films quand il est prêt */
+// ------ Films populaires (carrousel "Tendances du moment") ------
+// `Promise<Media[]>` = annotation de type du retour de la fonction async.
+// Toute fonction async retourne implicitement une Promise.
 async function getPopularMovies(): Promise<Media[]> {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
     console.error("TMDB_API_KEY is missing");
-    return []; // On retourne un tableau vide  si la clé d'API est manquante pour éviter de planter l'application.
+    return []; // Fallback : tableau vide → la grille s'affiche sans crasher
   }
 
   const url = `https://api.themoviedb.org/3/movie/popular?language=en-US&page=1&api_key=${apiKey}`;
+
+  // Astuce SSR : on passe l'option `next: { revalidate: N }` au fetch.
+  // Next intercepte ce fetch et met le résultat en cache N secondes.
+  // Au prochain appel dans la fenêtre de N sec → réponse en cache, 0 appel TMDB.
+  // C'est ce qui fait que Next peut générer des centaines de pages /movies
+  // sans exploser le quota TMDB.
   const options = {
     method: "GET",
-    // TMDB recommande d'inclure un header "Accept" pour indiquer que nous attendons une réponse JSON.
     headers: { accept: "application/json" },
-    // On met en cache le résultat pendant 1h pour ne pas surcharger l'API de TMDB.
-    next: { revalidate: 3600 },
+    next: { revalidate: 3600 }, // 3600s = 1h
   };
-  // On utilise un bloc try/catch pour gérer les erreurs réseau ou les réponses non-OK de l'API.
+
   try {
     const res = await fetch(url, options);
     if (!res.ok) {
       console.error(`Failed to fetch popular movies: ${res.statusText}`);
       return [];
     }
-    // On parse la réponse JSON et on retourne la liste des films populaires.
+    // Annotation `: PopularMediaResponse` = TypeScript trust me bro.
+    // C'est un cast statique, pas de validation runtime.
     const data: PopularMediaResponse = await res.json();
-    // L'API TMDB renvoie les films dans la propriété "results".
-    return data.results || []; // On retourne un tableau vide si "results" est undefined, || = opérateur de coalescence nulle pour éviter les erreurs de type.
+    // `|| []` = filet de sécurité si data.results est undefined
+    return data.results || [];
   } catch (error) {
     console.error("Network error while fetching popular movies:", error);
     return [];
   }
 }
 
-// ------ FONCTION POUR RÉCUPÉRER LES FILMS LES MIEUX NOTÉS ------ \\
+// ------ Films les mieux notés ------
+// Strictement la même structure que getPopularMovies (cf. commentaires ci-dessus).
+// Variations : URL différente, type de retour TopRatedMediaResponse.
 async function getTopRatedMedia(): Promise<Media[]> {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
     console.error("TMDB_API_KEY is missing");
-    return []; // On retourne un tableau vide  si la clé d'API est manquante pour éviter de planter l'application.
+    return [];
   }
 
   const url = `https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1&api_key=${apiKey}`;
   const options = {
     method: "GET",
-    // TMDB recommande d'inclure un header "Accept" pour indiquer que nous attendons une réponse JSON.
     headers: { accept: "application/json" },
-    // On met en cache le résultat pendant 1h pour ne pas surcharger l'API de TMDB.
     next: { revalidate: 3600 },
   };
-  // On utilise un bloc try/catch pour gérer les erreurs réseau ou les réponses non-OK de l'API.
+
   try {
     const res = await fetch(url, options);
     if (!res.ok) {
       console.error(`Failed to fetch top rated movies: ${res.statusText}`);
       return [];
     }
-    // On parse la réponse JSON et on retourne la liste des films les mieux notés.
     const data: TopRatedMediaResponse = await res.json();
-    // L'API TMDB renvoie les films dans la propriété "results".
-    return data.results || []; // On retourne un tableau vide si "results" est undefined, || = opérateur de coalescence nulle pour éviter les erreurs de type.
+    return data.results || [];
   } catch (error) {
     console.error("Network error while fetching top rated movies:", error);
     return [];
   }
 }
 
-// ------ FONCTION POUR RÉCUPÉRER LES FILMS À DÉCOUVRIR ------ \\
+// ------ Liste initiale "Découvrir" (sert d'initialData à DiscoverMedia) ------
+// Pourquoi cette fonction en plus, puisque le composant DiscoverMedia refetch
+// déjà tout seul côté client ? → pour avoir une grille HYDRATÉE dès le 1er
+// render. L'utilisateur voit du contenu instantanément sans attendre le JS.
 async function getDiscoverMovies(): Promise<Media[]> {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
@@ -107,7 +132,9 @@ async function getDiscoverMovies(): Promise<Media[]> {
   }
 }
 
-// ------ FONCTION POUR RÉCUPÉRER LES GENRES DE FILMS ------ \\
+// ------ Liste des genres pour le filtre du composant Discover ------
+// On met un revalidate de 24h car les genres TMDB changent quasiment jamais
+// (la dernière modif date de plusieurs années). Pas la peine de re-fetch H24.
 async function getMovieGenres(): Promise<Genre[]> {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
@@ -119,7 +146,7 @@ async function getMovieGenres(): Promise<Genre[]> {
   const options = {
     method: "GET",
     headers: { accept: "application/json" },
-    next: { revalidate: 86400 }, // Les genres changent peu, on met en cache pour 24h
+    next: { revalidate: 86400 }, // 86400s = 24h
   };
   try {
     const res = await fetch(url, options);
@@ -127,6 +154,7 @@ async function getMovieGenres(): Promise<Genre[]> {
       console.error(`Failed to fetch movie genres: ${res.statusText}`);
       return [];
     }
+    // Destructuration en TS : on extrait `genres` et on type l'objet wrapper
     const data: { genres: Genre[] } = await res.json();
     return data.genres || [];
   } catch (error) {
@@ -135,8 +163,12 @@ async function getMovieGenres(): Promise<Genre[]> {
   }
 }
 
+// `export default async function` = composant React server async.
+// L'async permet d'utiliser `await` directement dans le corps de la fonction.
 export default async function MoviesPage() {
-  // On appelle directement les fonctions qui récupèrent les données sur le serveur.
+  // 4 await séquentiels — chaque fetch attend le précédent.
+  // Optimisation possible : Promise.all([...]) pour les paralléliser. En
+  // pratique le cache de Next les rend instantanés après le 1er appel.
   const topRatedMovies = await getTopRatedMedia();
   const popularMovies = await getPopularMovies();
   const discoverMovies = await getDiscoverMovies();
@@ -144,19 +176,26 @@ export default async function MoviesPage() {
 
   return (
     <MediaContainer>
+      {/* Espaceur transparent de 480px de haut — laisse voir l'image de fond
+          (PageBackground) en haut de la page pour l'effet "hero". */}
       <div className="w-full h-120" />
 
-      {/* TENDANCES DU MOMENT */}
+      {/* Carrousel "Tendances du moment".
+          opts d'Embla :
+            align: "start"  → la 1re slide commence collée à gauche
+            loop: true      → après la dernière, on revient à la 1re
+            dragFree: true  → drag libre (pas de snap forcé sur une slide) */}
       <EmblaCarousel
         title="Tendances du moment"
         opts={{ align: "start", loop: true, dragFree: true }}
       >
+        {/* .map(...) génère une MediasCard par film. key={movie.id} obligatoire. */}
         {popularMovies.map((movie) => (
           <MediaCards key={movie.id} media={movie} />
         ))}
       </EmblaCarousel>
 
-      {/* LES MIEUX NOTÉS */}
+      {/* Carrousel "Les mieux notés" — même structure */}
       <EmblaCarousel
         title="Les mieux notés"
         opts={{ align: "start", loop: true, dragFree: true }}
@@ -166,7 +205,9 @@ export default async function MoviesPage() {
         ))}
       </EmblaCarousel>
 
-      {/* DÉCOUVRIR DES FILMS */}
+      {/* Section "Découvrir" : passe initialData ET fetchEndpoint au composant.
+          Le composant utilisera initialData pour le 1er render puis refetchera
+          via fetchEndpoint quand l'user changera un filtre. */}
       <DiscoverMedia
         title="Découvrir des films"
         emptyMessage="Aucun film ne correspond à vos critères."

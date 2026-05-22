@@ -1,3 +1,13 @@
+// ============================================================================
+// Composant UI : DropdownMenu (basé sur Radix UI)
+// ----------------------------------------------------------------------------
+// Wrapper stylé autour de @radix-ui/react-dropdown-menu : Radix gère toute
+// l'accessibilité (focus trap, navigation clavier, ARIA), nous on n'ajoute
+// que les classes Tailwind par-dessus.
+//
+// Utilisé dans : NavBar (menu avatar), DiscoverMedia (filtres genre/tri).
+// ============================================================================
+
 "use client";
 
 import * as React from "react";

@@ -1,40 +1,52 @@
-// Import de NextResponse pour formater la réponse API Next.js
+// ============================================================================
+// GET /api/movies/nowPlaying
+// ----------------------------------------------------------------------------
+// Renvoie les films CURRENTLY in theaters (à l'affiche).
+//
+// Particularité TMDB : la réponse inclut un objet `dates` qui donne la plage
+// de dates considérée comme "actuelle" :
+//   {
+//     dates: { minimum: "2026-04-25", maximum: "2026-05-21" },
+//     page: 1,
+//     results: [ ... ]
+//   }
+// → c'est pour ça qu'on type avec NowPlayingResponse (distinct de PopularResponse)
+//   et qu'on renvoie l'objet entier, pas juste `results`.
+// ============================================================================
+
 import { NextResponse } from "next/server";
-// Import des types TypeScript pour typer la réponse et chaque film
 import { NowPlayingResponse } from "@/types/tmdb";
 
-// Handler GET pour la route API des films actuellement à l’affiche
 export async function GET() {
-  // Récupération de la clé d’API TMDB depuis les variables d’environnement
+  // Variable d'environnement chargée par Next au démarrage (à partir du .env).
+  // Type implicite : string | undefined. D'où la vérif juste après.
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
-    // Retourne une erreur si la clé d’API est manquante
     return NextResponse.json(
       { error: "TMDB_API_KEY manquante" },
       { status: 500 },
     );
   }
 
-  // Construction de l’URL pour l’API TMDB (films now playing)
   const url = `https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1&api_key=${apiKey}`;
   const options = { method: "GET", headers: { accept: "application/json" } };
 
   try {
-    // Appel à l’API TMDB
     const res = await fetch(url, options);
     if (!res.ok) {
-      // Retourne une erreur si la requête échoue côté TMDB
       return NextResponse.json(
         { error: "Erreur TMDB" },
         { status: res.status },
       );
     }
-    // Typage de la réponse JSON avec NowPlayingResponse
+    // Annotation `: NowPlayingResponse` = on AFFIRME le type. Aucun check
+    // runtime n'est fait. Pour avoir une validation réelle → utiliser Zod
+    // (cf. actions/favorites.ts qui en a un exemple).
     const data: NowPlayingResponse = await res.json();
-    // Retourne la réponse JSON au client
     return NextResponse.json(data);
   } catch {
-    // Gestion d’erreur serveur (ex : problème réseau)
+    // Reasons fréquentes d'arriver ici : DNS down, timeout, JSON mal formé
+    // côté TMDB. On renvoie 500 générique et on laisse le front gérer.
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

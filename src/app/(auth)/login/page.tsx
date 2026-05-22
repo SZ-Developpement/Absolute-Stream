@@ -1,3 +1,15 @@
+// ============================================================================
+// /login — page de connexion
+// ----------------------------------------------------------------------------
+// Page client (formulaire contrôlé). Le vrai login est délégué au hook
+// useAuth (qui appelle better-auth en interne). Ici on gère seulement :
+//   - les champs email / password
+//   - le submit + redirection vers "/" si succès
+//   - l'affichage d'une erreur si la connexion échoue
+//
+// Note : si l'utilisateur est DÉJÀ connecté, on le pousse direct vers "/".
+// ============================================================================
+
 "use client";
 
 import { FormEvent, useState, useEffect } from "react";
@@ -13,6 +25,7 @@ import {
 export default function LoginPage() {
   const router = useRouter();
   const { signIn, user, loading, error } = useAuth();
+  // États contrôlés du formulaire
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +44,8 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password);
-      router.push("/"); // s'exécute seulement si signIn n'a pas throw
+      // Succès → on redirige vers la home (ne s'exécute pas si signIn a throw)
+      router.push("/");
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : "Erreur de connexion");
     } finally {
@@ -39,6 +53,7 @@ export default function LoginPage() {
     }
   };
 
+  // Le contexte d'auth est encore en train de vérifier la session
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black">
@@ -47,6 +62,8 @@ export default function LoginPage() {
     );
   }
 
+  // Si déjà connecté → le useEffect ci-dessus gère la redirection,
+  // ici on évite juste d'afficher le formulaire pendant le push
   if (user) return null;
 
   return (
@@ -111,6 +128,7 @@ export default function LoginPage() {
             {isLoading ? "Connexion en cours..." : "Se connecter"}
           </button>
 
+          {/* Message d'erreur : local (catch du submit) ou global (context) */}
           {(localError || error) && (
             <p className="text-red-500 text-sm mt-1">
               {localError || String(error)}

@@ -1,6 +1,20 @@
+// ============================================================================
+// Helpers TMDB — appels côté serveur à l'API The Movie Database
+// ----------------------------------------------------------------------------
+// Ce fichier contient les fonctions qui parlent à TMDB depuis le serveur.
+// On y stocke les types qui décrivent les réponses qu'on consomme et la
+// fonction `getCollections` (sagas / franchises ex: Harry Potter, Star Wars).
+//
+// Astuce mise en cache :
+//   fetch(..., { next: { revalidate: N } })
+// Next.js met automatiquement le résultat en cache N secondes → on évite
+// de spammer TMDB et on tient les quotas largement.
+// ============================================================================
+
 const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
+// Forme minimale d'un film TMDB (on ne déclare que ce qu'on lit ici)
 interface TMDBMovie {
   id: number;
   title: string;
@@ -10,6 +24,7 @@ interface TMDBMovie {
   };
 }
 
+// Représente une saga complète avec ses films (= ce qu'on affiche en front)
 export interface TMDBCollection {
   id: number;
   name: string;
@@ -24,6 +39,17 @@ export interface TMDBCollection {
   }>;
 }
 
+/**
+ * Construit la liste des sagas (collections) à partir des films populaires.
+ *
+ * Logique :
+ *   1. On parcourt les pages /movie/popular jusqu'à atteindre `limit` films.
+ *   2. Pour chaque film, on appelle son endpoint détails pour voir s'il
+ *      appartient à une `belongs_to_collection` (ex: "Harry Potter Collection").
+ *   3. On dédoublonne via un Set, puis on récupère les détails de chaque collection.
+ *
+ * Revalidation : popular = 1h, détails/collection = 24h (données stables).
+ */
 export async function getCollections(
   limit: number = 20,
 ): Promise<TMDBCollection[]> {
@@ -44,12 +70,13 @@ export async function getCollections(
       }
 
       const data = await response.json();
+      // On ne traite que ce qu'il manque pour atteindre la limite
       const moviesOnThisPage = Math.min(
         data.results.length,
         limit - moviesProcessed,
       );
 
-      // Pour chaque film, récupère les détails pour trouver les collections
+      // Pour chaque film, on demande les détails (Promise.all = parallèle)
       const movieDetails = await Promise.all(
         data.results.slice(0, moviesOnThisPage).map((movie: TMDBMovie) =>
           fetch(
@@ -61,7 +88,7 @@ export async function getCollections(
         ),
       );
 
-      // Collecte les IDs de collections uniques
+      // On extrait les IDs de saga (Set dédoublonne automatiquement)
       movieDetails.forEach((movie: TMDBMovie | null) => {
         if (movie?.belongs_to_collection?.id) {
           collectionIds.add(movie.belongs_to_collection.id);
@@ -71,10 +98,11 @@ export async function getCollections(
       moviesProcessed += moviesOnThisPage;
       page++;
 
+      // Garde-fou : si TMDB renvoie 0 résultat, on stoppe (sinon boucle infinie)
       if (data.results.length === 0) break;
     }
 
-    // Récupère les détails de chaque collection
+    // 2e batch : on demande les détails de chaque collection trouvée
     const collections = await Promise.all(
       Array.from(collectionIds).map((id) =>
         fetch(
@@ -86,6 +114,7 @@ export async function getCollections(
       ),
     );
 
+    // Filtre TypeScript propre : on retire les nulls (échec de fetch)
     return collections.filter((c): c is TMDBCollection => c !== null);
   } catch (error) {
     console.error("Erreur lors de la récupération des collections:", error);

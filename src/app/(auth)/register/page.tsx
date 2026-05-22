@@ -1,3 +1,15 @@
+// ============================================================================
+// /register — page d'inscription
+// ----------------------------------------------------------------------------
+// Très proche de /login : un formulaire contrôlé (name + email + password),
+// on délègue le signUp au hook useAuth, puis on redirige vers /login pour
+// que l'utilisateur entre ses identifiants tout neufs.
+//
+// Différence avec /login : ici on gère la redirection "déjà connecté" via
+// useEffect plutôt qu'en plein render (évite le warning Next "router.push
+// during render").
+// ============================================================================
+
 "use client";
 
 import { FormEvent, useState, useEffect } from "react";
@@ -20,6 +32,8 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState("");
 
+  // Redirection si déjà connecté — fait dans useEffect pour éviter de mutter
+  // le router pendant le render React (provoquerait un warning).
   useEffect(() => {
     if (user) {
       router.push("/");
@@ -43,7 +57,9 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       await signUp(email, password, name);
-      router.push("/login"); // ne s'exécute que si signUp réussit
+      // Après création de compte → redirection vers /login
+      // (ne s'exécute pas si signUp a throw)
+      router.push("/login");
     } catch (err) {
       console.error(err);
     } finally {
@@ -51,6 +67,7 @@ export default function RegisterPage() {
     }
   };
 
+  // Chargement initial du contexte d'auth
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black">
@@ -59,6 +76,7 @@ export default function RegisterPage() {
     );
   }
 
+  // Déjà connecté → on ne rend rien, le useEffect ci-dessus s'occupe du push
   if (user) return null;
 
   return (

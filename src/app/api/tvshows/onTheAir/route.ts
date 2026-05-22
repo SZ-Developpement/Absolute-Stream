@@ -1,40 +1,41 @@
-// Import de NextResponse pour formater la réponse API Next.js
+// ============================================================================
+// GET /api/tvshows/onTheAir
+// ----------------------------------------------------------------------------
+// Séries actuellement diffusées à la TV (proxy de /tv/on_the_air TMDB).
+//
+// "On the air" = la série a au moins un épisode diffusé dans les 7 prochains
+// jours selon la doc TMDB. Pratique pour faire un carrousel "À regarder cette
+// semaine".
+// ============================================================================
+
 import { NextResponse } from "next/server";
-// Import des types TypeScript pour typer la réponse et chaque série TV
+// OnTheAirResponse a la même forme que les autres endpoints paginés TMDB
+// (page / results / total_pages / total_results).
 import { OnTheAirResponse } from "@/types/tmdb";
 
-// Handler GET pour la route API des séries TV actuellement à l’affiche
 export async function GET() {
-  // Récupération de la clé d’API TMDB depuis les variables d’environnement
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
-    // Retourne une erreur si la clé d’API est manquante
     return NextResponse.json(
       { error: "TMDB_API_KEY manquante" },
       { status: 500 },
     );
   }
 
-  // Construction de l’URL pour l’API TMDB (séries TV en ce moment)
   const url = `https://api.themoviedb.org/3/tv/on_the_air?language=en-US&page=1&api_key=${apiKey}`;
   const options = { method: "GET", headers: { accept: "application/json" } };
 
   try {
-    // Appel à l’API TMDB
     const res = await fetch(url, options);
     if (!res.ok) {
-      // Retourne une erreur si la requête échoue côté TMDB
       return NextResponse.json(
         { error: "Erreur TMDB" },
         { status: res.status },
       );
     }
-    // Typage de la réponse JSON avec OnTheAirResponse
     const data: OnTheAirResponse = await res.json();
-    // Retourne la réponse JSON au client
     return NextResponse.json(data);
   } catch {
-    // Gestion d’erreur serveur (ex : problème réseau)
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
