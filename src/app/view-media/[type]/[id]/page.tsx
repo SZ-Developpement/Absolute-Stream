@@ -82,7 +82,7 @@ export default async function ViewMediaPage({
         />
       )}
       <MediaContainer>
-        <div className="w-full min-h-screen flex flex-row gap-6 xl:gap-12 mt-12 z-10">
+        <div className="w-full min-h-screen flex flex-col sm:flex-row gap-6 xl:gap-12 my-12 z-10">
           {/* Bloc de gauche */}
           <div className="flex flex-col gap-4 max-w-[16rem] w-full">
             {/* Poster Media */}
