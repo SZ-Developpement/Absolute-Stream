@@ -33,52 +33,56 @@ export default function CardCollection({
   ImageEnd,
 }: CardCollectionProps) {
   return (
-    <Link href={`/collections/${id}`}>
-      <div className="group aspect-16/6 w-full bg-white/5 rounded-xl p-6 flex justify-between items-start overflow-hidden hover:bg-white/10 transition-colors duration-300">
+    <Link href={`/collections/${id}`} className="block w-full">
+      <div className="group relative w-full min-h-[140px] sm:aspect-16/6 bg-white/5 rounded-xl p-4 sm:p-6 flex justify-between items-center overflow-hidden hover:bg-white/10 transition-colors duration-300">
         {/* === COLONNE GAUCHE : infos texte === */}
-        <div className="flex flex-col items-start justify-between h-full max-w-[50%]">
-          <div className="flex flex-col gap-0.5">
-            <h3 className="text-xl font-semibold text-white">{name}</h3>
-            <p className="text-base text-gray-400">{movies_count} films</p>
+        <div className="flex flex-col justify-between h-full max-w-[55%] z-30 gap-4">
+          <div className="flex flex-col gap-1">
+            <h3 className="text-lg sm:text-xl font-semibold text-white line-clamp-2 leading-tight">
+              {name}
+            </h3>
+            <p className="text-sm sm:text-base text-gray-400">
+              {movies_count} films
+            </p>
           </div>
 
           {startDate && endDate && (
-            <p className="text-sm text-gray-400">
-              {/* Conversion ISO → format français lisible (ex: "juillet 2001") */}
+            <p className="text-xs sm:text-sm text-gray-400/80 mt-auto">
               {new Date(startDate).toLocaleDateString("fr-FR", {
                 year: "numeric",
-                month: "long",
+                month: "short", // 'short' prend moins de place sur petit écran (ex: "juil. 2001")
               })}{" "}
               -{" "}
               {new Date(endDate).toLocaleDateString("fr-FR", {
                 year: "numeric",
-                month: "long",
+                month: "short",
               })}
             </p>
           )}
         </div>
 
         {/* === COLONNE DROITE : deux affiches superposées en V === */}
-        <div className="relative flex items-center h-full pr-6">
-          {/* Affiche du PREMIER film (penchée vers la gauche, en-dessous) */}
-          <div className="absolute right-20 top-1/2 -translate-y-1/2 w-20 sm:w-24 aspect-2/3 rounded-lg overflow-hidden -rotate-12 group-hover:-rotate-14 transition-all duration-300 z-10">
+        <div className="relative w-[120px] sm:w-[150px] h-full min-h-[110px] flex items-center justify-end my-auto">
+          {/* Affiche du PREMIER film (à gauche, en-dessous) */}
+          <div className="absolute right-12 sm:right-16 top-1/2 -translate-y-1/2 w-16 sm:w-20 md:w-22 aspect-2/3 rounded-lg overflow-hidden -rotate-12 group-hover:-rotate-14 transition-all duration-300 z-10 shadow-xl">
             <Image
               src={ImageStart}
               alt=""
               fill
               loading="eager"
-              sizes="(max-width: 768px) 80px, 96px"
+              sizes="(max-width: 640px) 64px, 80px"
               className="object-cover object-top"
             />
           </div>
-          {/* Affiche du DERNIER film (penchée vers la droite, par-dessus) */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 w-20 sm:w-24 aspect-2/3 rounded-lg overflow-hidden rotate-6 group-hover:rotate-8 transition-all duration-300 z-20">
+
+          {/* Affiche du DERNIER film (à droite, par-dessus) */}
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 w-16 sm:w-20 md:w-22 aspect-2/3 rounded-lg overflow-hidden rotate-6 group-hover:rotate-8 transition-all duration-300 z-20 shadow-2xl">
             <Image
               src={ImageEnd}
               alt=""
               fill
               loading="eager"
-              sizes="(max-width: 768px) 80px, 96px"
+              sizes="(max-width: 640px) 64px, 80px"
               className="object-cover object-top"
             />
           </div>
