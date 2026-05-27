@@ -1,0 +1,4 @@
+# Gère automatiquement les fins de ligne pour éviter les conflits entre OS.
+# Force l'utilisation de LF (Line Feed) pour tous les fichiers texte,
+# ce qui est la convention la plus courante pour les projets web.
+* text=auto eol=lf

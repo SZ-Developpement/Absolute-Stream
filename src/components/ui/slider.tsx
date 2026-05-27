@@ -1,3 +1,14 @@
+// ============================================================================
+// Composant UI : Slider (basé sur Radix UI)
+// ----------------------------------------------------------------------------
+// Curseur de plage (ex: filtre par note 0-10, durée min-max...) construit au-
+// dessus de @radix-ui/react-slider. Radix gère le drag, le clavier (flèches
+// pour ajuster), l'ARIA. Nous on rajoute juste le style + une prop `color`
+// pour personnaliser la couleur du remplissage et de la poignée.
+//
+// Utilisé : potentiellement dans les filtres avancés et la page Settings.
+// ============================================================================
+
 "use client";
 
 import * as React from "react";
