@@ -51,30 +51,27 @@ export default function CollectionsPage() {
   };
 
   return (
-    <MediaContainer>
+    <MediaContainer className=" pb-12">
       {/* En-tête de page */}
-      <div className="flex flex-col items-center justify-center gap-1 mt-6">
-        <h1 className="text-4xl font-bold">Collections</h1>
-        <p className="text-base text-gray-400">
-          Exploréz les collections de films les plus populaires sur TMDB.
+      <div className="flex flex-col items-center justify-center gap-1 mt-6 text-center px-4">
+        <h1 className="text-3xl sm:text-4xl font-bold">Collections</h1>
+        <p className="text-sm sm:text-base text-gray-400 max-w-md">
+          Explorez les collections de films les plus populaires sur TMDB.
         </p>
       </div>
 
-      {/* Grille 3 colonnes — une carte = une franchise */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* Grille responsive : 1 col sur mobile, 2 sur tablette, 3 sur desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 sm:px-0 mt-8">
         {collections.map((collection) => (
           <CardCollection
             key={collection.id}
             id={collection.id}
             name={collection.name}
-            // Nombre de films dans la saga = longueur de "parts"
             movies_count={collection.parts.length}
-            // Première et dernière sortie = premiers/derniers films de la saga
             startDate={collection.parts[0]?.release_date}
             endDate={
               collection.parts[collection.parts.length - 1]?.release_date
             }
-            // Affiches du premier et du dernier film, avec fallback no-image
             ImageStart={
               collection.parts[0]?.poster_path
                 ? `https://image.tmdb.org/t/p/w500${collection.parts[0].poster_path}`
@@ -94,7 +91,7 @@ export default function CollectionsPage() {
         <button
           onClick={handleLoadMore}
           disabled={loading}
-          className="px-6 py-2 text-white rounded-lg disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-colors"
+          className="px-6 py-2 text-white  rounded-lg disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-colors"
         >
           {loading ? "Chargement..." : "Afficher plus"}
         </button>
